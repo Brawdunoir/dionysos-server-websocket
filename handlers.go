@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/gorilla/websocket"
@@ -15,8 +16,13 @@ func HandleConnection(remoteAddr string, conn *websocket.Conn) error {
 
 	// ReadJSON from client
 	err := conn.ReadJSON(&newConnectionRequest)
-	if err != nil || newConnectionRequest.Username == "" {
-		return errors.New("wrong input from client")
+	if err != nil {
+		return errors.New("cannot read JSON from client")
+	}
+	// Chech request formatting
+	err = checkNewConnectionRequest(newConnectionRequest)
+	if err != nil {
+		return fmt.Errorf("%w; wrong input from client", err)
 	}
 
 	// Create a new user and add it to the list
@@ -40,8 +46,13 @@ func HandleNewRoom(remoteAddr string, conn *websocket.Conn) error {
 
 	// ReadJSON from client
 	err := conn.ReadJSON(&newRoom)
-	if err != nil || newRoom.RoomName == "" || newRoom.OwnerName == "" {
-		return errors.New("wrong input from client")
+	if err != nil {
+		return errors.New("cannot read JSON from client")
+	}
+	// Chech request formatting
+	err = checkNewRoomRequest(newRoom)
+	if err != nil {
+		return fmt.Errorf("%w; wrong input from client", err)
 	}
 
 	// Retrieve owner info
