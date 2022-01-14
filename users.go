@@ -1,12 +1,22 @@
 package main
 
+import (
+	"sync"
+
+	"github.com/gorilla/websocket"
+)
+
 type User struct {
-	ID         string `json:"-"`
-	Name       string `json:"name"`
-	RemoteAddr string `json:"-"`
+	ID            string          `json:"id"`
+	Name          string          `json:"name"`
+	RemoteAddr    string          `json:"-"`
+	Accepted      chan bool       `json:"-"`
+	AcceptedMutex sync.Mutex      `json:"-"`
+	Conn          *websocket.Conn `json:"-"`
+	ConnMutex     sync.Mutex      `json:"-"`
 }
 
-func (u User) String() string {
+func (u *User) String() string {
 	return u.Name + " (" + u.RemoteAddr + ")"
 }
 
@@ -16,6 +26,6 @@ func GenerateUserID(remoteAddr, username string) string {
 }
 
 // Creates a new user
-func NewUser(username, remoteAddr string) User {
-	return User{ID: GenerateUserID(remoteAddr, username), Name: username, RemoteAddr: remoteAddr}
+func NewUser(username, remoteAddr string, conn *websocket.Conn) *User {
+	return &User{ID: GenerateUserID(remoteAddr, username), Name: username, RemoteAddr: remoteAddr, ConnMutex: sync.Mutex{}, Conn: conn, Accepted: make(chan bool)}
 }

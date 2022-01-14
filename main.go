@@ -4,14 +4,14 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 )
 
 var upgrader = websocket.Upgrader{} // use default options
 
-var users = map[string]User{} // list of users connected
-var rooms = map[string]Room{} // list of rooms registered
+var users = map[string]*User{} // list of users connected
+var rooms = map[string]*Room{} // list of rooms registered
 
 func socketHandler(w http.ResponseWriter, r *http.Request) {
 	// Upgrade our raw HTTP connection to a websocket based one
@@ -22,35 +22,27 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
+	log.Println("connected to:", r.RemoteAddr)
+
 	for {
-		// We’re reading keyword to know the action to perform next
-		_, action, err := conn.ReadMessage()
+		var req Request
+
+		err := conn.ReadJSON(&req)
 		if err != nil {
-			log.Println("Error during message reading:", err)
+			log.Println("Error during JSON reading:", err)
 			break
 		}
-		log.Println("Received:", action, "from", r.RemoteAddr)
 
-		// Perform desired action
-		switch {
-		case same(action, NEWCONNECTION):
-			err := HandleConnection(r.RemoteAddr, conn)
-			if err != nil {
-				log.Println(err)
-				// TODO send error to client
-			}
-		case same(action, NEWROOM):
-			err := HandleNewRoom(r.RemoteAddr, conn)
-			if err != nil {
-				log.Println(err)
-				// TODO send error to client
-			}
+		_, err = req.handle(r.RemoteAddr, conn)
+		if err != nil {
+			log.Println("wrong request from client:", err)
+			continue
 		}
 	}
 }
 
 func main() {
-	router := gin.Default()
-	router.GET("/socket", gin.WrapF(socketHandler))
-	router.Run("localhost:8080")
+	router := mux.NewRouter().StrictSlash(true)
+	router.HandleFunc("/", socketHandler)
+	http.ListenAndServe(":8080", router)
 }
