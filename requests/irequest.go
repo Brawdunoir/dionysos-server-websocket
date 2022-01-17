@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// Requests codes
 const (
 	NEWCONNECTION    = "NCO"
 	NEWROOM          = "NRO"

@@ -34,19 +34,18 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		data, err := req.Handle(r.RemoteAddr, conn, users, rooms)
+		response, err := req.Handle(r.RemoteAddr, conn, users, rooms)
 		if err != nil {
 			log.Println("wrong request from client:", err)
-			continue
 		}
-		if data != nil {
-			// send a response
-		}
+		conn.WriteJSON(response)
 	}
 }
 
 func main() {
+	log.Println("Starting…")
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", socketHandler)
+	log.Println("Listening…")
 	http.ListenAndServe(":8080", router)
 }

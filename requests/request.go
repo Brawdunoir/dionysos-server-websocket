@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	obj "github.com/Brawdunoir/goplay-server/objects"
+	"github.com/Brawdunoir/goplay-server/response"
 	"github.com/gorilla/websocket"
 )
 
@@ -32,7 +33,7 @@ func (r Request) Check() error {
 func (req Request) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) (interface{}, error) {
 	err := req.Check()
 	if err != nil {
-		return nil, err
+		return response.CreateResponse(nil, err, req.Code)
 	}
 
 	var request IRequest
@@ -52,15 +53,17 @@ func (req Request) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Us
 		err = json.Unmarshal(req.Payload, &r)
 		request = r
 	default:
-		return nil, errors.New("unknown code")
+		return response.CreateResponse(nil, errors.New("unknown code"), req.Code)
 	}
 	if err != nil {
-		return nil, err
+		return response.CreateResponse(nil, err, req.Code)
 	}
 
 	err = request.Check()
 	if err != nil {
-		return nil, err
+		return response.CreateResponse(nil, err, req.Code)
 	}
-	return request.Handle(remoteAddr, conn, users, rooms)
+
+	v, err := request.Handle(remoteAddr, conn, users, rooms)
+	return response.CreateResponse(v, err, req.Code)
 }
