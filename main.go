@@ -4,14 +4,15 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Brawdunoir/goplay-server/objects"
+	"github.com/Brawdunoir/goplay-server/requests"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 )
 
 var upgrader = websocket.Upgrader{} // use default options
-
-var users = map[string]*User{} // list of users connected
-var rooms = map[string]*Room{} // list of rooms registered
+var users = objects.NewUsers()      // list of users connected
+var rooms = objects.NewRooms()      // list of rooms registered
 
 func socketHandler(w http.ResponseWriter, r *http.Request) {
 	// Upgrade our raw HTTP connection to a websocket based one
@@ -25,7 +26,7 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("connected to:", r.RemoteAddr)
 
 	for {
-		var req Request
+		var req requests.Request
 
 		err := conn.ReadJSON(&req)
 		if err != nil {
@@ -33,10 +34,13 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		_, err = req.handle(r.RemoteAddr, conn)
+		data, err := req.Handle(r.RemoteAddr, conn, users, rooms)
 		if err != nil {
 			log.Println("wrong request from client:", err)
 			continue
+		}
+		if data != nil {
+			// send a response
 		}
 	}
 }
