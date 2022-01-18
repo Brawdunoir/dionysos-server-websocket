@@ -5,5 +5,5 @@ const (
 	SUCCESS = "SUC"
 	ERROR   = "ERR"
 	// The client received a JoinRoomRequest with this status
-	JOINROOMPENDING = "JRP"
+	JOIN_ROOM_PENDING = "JRP"
 )

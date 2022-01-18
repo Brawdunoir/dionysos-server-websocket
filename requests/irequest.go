@@ -7,11 +7,11 @@ import (
 
 // Requests codes
 const (
-	NEWCONNECTION    = "NCO"
-	NEWROOM          = "NRO"
-	JOINROOM         = "JRO"
-	ACCEPTUSERTOROOM = "AUT"
-	DENYUSERTOROOM   = "DUT"
+	NEW_CONNECTION    = "NCO"
+	NEW_ROOM          = "NRO"
+	JOIN_ROOM         = "JRO"
+	ACCEPT_USER_TO_ROOM = "AUT"
+	DENY_USER_TO_ROOM   = "DUT"
 )
 
 type IRequest interface {

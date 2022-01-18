@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	obj "github.com/Brawdunoir/goplay-server/objects"
-	"github.com/Brawdunoir/goplay-server/response"
+	responses "github.com/Brawdunoir/goplay-server/responses"
 	"github.com/gorilla/websocket"
 )
 
@@ -33,37 +33,33 @@ func (r Request) Check() error {
 func (req Request) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) (interface{}, error) {
 	err := req.Check()
 	if err != nil {
-		return response.CreateResponse(nil, err, req.Code)
+		return responses.CreateResponse(nil, err, req.Code)
 	}
 
 	var request IRequest
 
 	// Would be better to change r type and unmarshall/handle this at the end of switch
 	switch req.Code {
-	case NEWCONNECTION:
+	case NEW_CONNECTION:
 		var r NewConnectionRequest
 		err = json.Unmarshal(req.Payload, &r)
 		request = r
-	case NEWROOM:
+	case NEW_ROOM:
 		var r NewRoomRequest
 		err = json.Unmarshal(req.Payload, &r)
 		request = r
-	case JOINROOM:
-		var r JoinRoomRequest
-		err = json.Unmarshal(req.Payload, &r)
-		request = r
 	default:
-		return response.CreateResponse(nil, errors.New("unknown code"), req.Code)
+		return responses.CreateResponse(nil, errors.New("unknown code"), req.Code)
 	}
 	if err != nil {
-		return response.CreateResponse(nil, err, req.Code)
+		return responses.CreateResponse(nil, err, req.Code)
 	}
 
 	err = request.Check()
 	if err != nil {
-		return response.CreateResponse(nil, err, req.Code)
+		return responses.CreateResponse(nil, err, req.Code)
 	}
 
 	v, err := request.Handle(remoteAddr, conn, users, rooms)
-	return response.CreateResponse(v, err, req.Code)
+	return responses.CreateResponse(v, err, req.Code)
 }
