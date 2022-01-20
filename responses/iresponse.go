@@ -1,4 +1,4 @@
-package response
+package responses
 
 // Responses status
 const (
