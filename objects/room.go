@@ -61,5 +61,5 @@ func generateRoomID(roomName, ownerRemoteAddr string) string {
 
 // Creates a new room
 func newRoom(roomName string, owner *user) *room {
-	return &room{ID: generateRoomID(roomName, owner.RemoteAddr), Name: roomName, Peers: []*user{owner}}
+	return &room{ID: generateRoomID(roomName, owner.RemoteAddr), Name: roomName, OwnerID: owner.ID, Peers: []*user{owner}}
 }
