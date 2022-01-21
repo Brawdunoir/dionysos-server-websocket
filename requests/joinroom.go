@@ -40,7 +40,7 @@ func (r JoinRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *
 	// Fetch client, room and room owner info
 	requester, err := users.User(r.RequesterUsername, remoteAddr)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w, can not retrieve requester info", err)
 	}
 
 	room, err := rooms.Room(r.RoomID)
@@ -49,7 +49,7 @@ func (r JoinRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *
 	}
 	owner, err := users.UserByID(room.OwnerID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w, can not retrieve owner info", err)
 	}
 
 	if room.IsPeerPresent(requester) {
