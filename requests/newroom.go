@@ -9,18 +9,18 @@ import (
 )
 
 type NewRoomRequest struct {
-	RoomName  string `json:"roomname"`
-	OwnerName string `json:"ownername"`
+	RoomName  string `json:"roomName"`
+	OwnerName string `json:"ownerName"`
 }
 
 func (r NewRoomRequest) Check() error {
 	var err error
 
 	if r.RoomName == "" {
-		err = fmt.Errorf("%w; roomname is empty", err)
+		err = fmt.Errorf("%w; roomName is empty", err)
 	}
 	if r.OwnerName == "" {
-		err = fmt.Errorf("%w; ownername is empty", err)
+		err = fmt.Errorf("%w; ownerName is empty", err)
 	}
 
 	return err

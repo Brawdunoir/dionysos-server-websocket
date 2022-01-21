@@ -16,19 +16,19 @@ import (
 // This way, the owner answer Yes or No to the request
 // and join the RequesterID to his answer.
 type JoinRoomRequest struct {
-	RequesterUsername string `json:"requesterusername"`
-	RoomID            string `json:"roomid"`
-	RequesterID       string `json:"requesterid"`
+	RequesterUsername string `json:"requesterUsername"`
+	RoomID            string `json:"roomId"`
+	RequesterID       string `json:"requesterId"`
 }
 
 func (r JoinRoomRequest) Check() error {
 	var err error
 
 	if r.RequesterUsername == "" {
-		err = fmt.Errorf("%w; requesterusername is empty", err)
+		err = fmt.Errorf("%w; requesterUsername is empty", err)
 	}
 	if r.RoomID == "" {
-		err = fmt.Errorf("%w; roomid is empty", err)
+		err = fmt.Errorf("%w; roomId is empty", err)
 	}
 	// RequesterID can be empty since it is replaced by server
 
