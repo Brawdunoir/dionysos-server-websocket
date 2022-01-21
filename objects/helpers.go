@@ -7,5 +7,5 @@ import (
 
 // Generate a hash from a string
 func generateStringHash(s string) string {
-	return fmt.Sprint(sha1.Sum([]byte(s)))
+	return fmt.Sprintf("%x", sha1.Sum([]byte(s)))
 }
