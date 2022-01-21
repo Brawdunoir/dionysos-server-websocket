@@ -16,18 +16,15 @@ type Payload struct {
 }
 
 // CreateResponse returns a response
-func CreateResponse(pl interface{}, requestCode string, err error) (Response, error) {
+func CreateResponse(info interface{}, requestCode string, err error) (Response, error) {
 	var status string
-	var payload Payload
-
-	if pl != nil || err != nil {
-		payload = Payload{Info: pl, Err: err.Error()}
-	}
+	payload := Payload{Info: info}
 
 	if err == nil {
 		status = SUCCESS
 	} else {
 		status = ERROR
+		payload.Err = err.Error()
 	}
 
 	return Response{Status: status, RequestCode: requestCode, Payload: payload}, err
