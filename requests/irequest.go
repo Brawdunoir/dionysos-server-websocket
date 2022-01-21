@@ -7,9 +7,11 @@ import (
 
 // Requests codes
 const (
-	NEW_CONNECTION    = "NCO"
-	NEW_ROOM          = "NRO"
-	JOIN_ROOM         = "JRO"
+	// Register a new user to the server and returns the user's ID in the payload
+	NEW_CONNECTION = "NCO"
+	// Register a new room to the server and returns the room's ID in the payload
+	NEW_ROOM            = "NRO"
+	JOIN_ROOM           = "JRO"
 	ACCEPT_USER_TO_ROOM = "AUT"
 	DENY_USER_TO_ROOM   = "DUT"
 )

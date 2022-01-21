@@ -11,14 +11,15 @@ type Response struct {
 	Payload     json.RawMessage `json:"payload"`
 }
 
-type payload struct {
+// Payload carry more information, it can be empty
+type Payload struct {
 	Info interface{} `json:"info"`
 	Err  string      `json:"error"`
 }
 
 // CreateResponse returns a response
-func CreateResponse(pl interface{}, err error, requestCode string) (Response, error) {
-	jsonpayload, erro := json.Marshal(payload{Info: pl, Err: err.Error()})
+func CreateResponse(pl interface{}, requestCode string, err error) (Response, error) {
+	jsonpayload, erro := json.Marshal(Payload{Info: pl, Err: err.Error()})
 	if erro != nil {
 		return Response{}, erro
 	}
