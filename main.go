@@ -23,7 +23,7 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	log.Println("connected to:", r.RemoteAddr)
+	log.Println(r.RemoteAddr, "Connected")
 
 	for {
 		var req requests.Request
