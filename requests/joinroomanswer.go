@@ -1,6 +1,7 @@
 package requests
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -10,6 +11,8 @@ import (
 )
 
 type JoinRoomAnswerRequest struct {
+	OwnerName   string `json:"ownerName"`
+	RoomID      string `json:"roomId"`
 	RequesterID string `json:"requesterId"`
 	Accepted    bool   `json:"accepted"`
 }
@@ -45,6 +48,46 @@ func (r JoinRoomAnswerRequest) Handle(remoteAddr string, conn *websocket.Conn, u
 }
 
 func handleAccept(r JoinRoomAnswerRequest, remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) (interface{}, error) {
+	// Fetch requester, owner and room info
+	requester, err := users.UserByID(r.RequesterID)
+	if err != nil {
+		return nil, err
+	}
+
+	owner, err := users.User(r.OwnerName, remoteAddr)
+	if err != nil {
+		return nil, err
+	}
+
+	room, err := rooms.Room(r.RoomID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Assert user from this request is the legal owner of the room
+	if room.OwnerID != owner.ID {
+		return nil, errors.New("you do not have this permission")
+	}
+
+	peers, err := rooms.Peers(r.RoomID)
+	if err != nil {
+		return nil, err
+	}
+	// Add the newcoming to the list of the peer before sending all the messages to existing peers
+	rooms.AddPeer(r.RoomID, requester)
+
+	// Send requester info to all actual peers
+	for _, peer := range peers {
+		peer.ConnMutex.Lock()
+		peer.Conn.WriteJSON(res.Response{Status: res.NEW_PEER, RequestCode: JOIN_ROOM_ANSWER, Payload: res.Payload{Info: requester}})
+		peer.ConnMutex.Unlock()
+	}
+
+	// Send actual peers info to the newcoming
+	requester.ConnMutex.Lock()
+	requester.Conn.WriteJSON(res.Response{Status: res.SUCCESS, RequestCode: JOIN_ROOM, Payload: res.Payload{Info: peers}})
+	requester.ConnMutex.Unlock()
+
 	return nil, nil
 }
 

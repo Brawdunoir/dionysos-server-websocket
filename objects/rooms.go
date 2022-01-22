@@ -33,6 +33,31 @@ func (rooms *Rooms) AddRoom(roomName string, owner *user) string {
 	return room.ID
 }
 
+// AddPeer add a peer to an existing room
+func (rooms *Rooms) AddPeer(roomID string, u *user) (*room, error) {
+	r, err := rooms.Room(roomID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = r.addPeer(u)
+	if err != nil {
+		return nil, err
+	}
+
+	return r, nil
+}
+
+// Peers return a user slice of connected peers in a room
+func (rooms *Rooms) Peers(roomID string) ([]*user, error) {
+	r, err := rooms.Room(roomID)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.Peers, nil
+}
+
 // Rooms returns a room in a set of room given its ID
 // Return an error if the room is not in set
 func (rooms *Rooms) Room(roomID string) (*room, error) {
