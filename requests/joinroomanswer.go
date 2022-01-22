@@ -79,13 +79,13 @@ func handleAccept(r JoinRoomAnswerRequest, remoteAddr string, conn *websocket.Co
 	// Send requester info to all actual peers
 	for _, peer := range peers {
 		peer.ConnMutex.Lock()
-		peer.Conn.WriteJSON(res.Response{Status: res.NEW_PEER, RequestCode: JOIN_ROOM_ANSWER, Payload: res.Payload{Info: requester}})
+		peer.Conn.WriteJSON(res.NewResponse(res.NEW_PEER, JOIN_ROOM_ANSWER, "", requester))
 		peer.ConnMutex.Unlock()
 	}
 
 	// Send actual peers info to the newcoming
 	requester.ConnMutex.Lock()
-	requester.Conn.WriteJSON(res.Response{Status: res.SUCCESS, RequestCode: JOIN_ROOM, Payload: res.Payload{Info: peers}})
+	requester.Conn.WriteJSON(res.NewResponse(res.REQUEST_ACCEPTED, JOIN_ROOM, "", peers))
 	requester.ConnMutex.Unlock()
 
 	return nil, nil
@@ -98,7 +98,7 @@ func handleDeny(r JoinRoomAnswerRequest, remoteAddr string, conn *websocket.Conn
 	}
 
 	requester.ConnMutex.Lock()
-	requester.Conn.WriteJSON(res.Response{Status: res.REQUEST_DENIED, RequestCode: JOIN_ROOM})
+	requester.Conn.WriteJSON(res.NewResponse(res.REQUEST_DENIED, JOIN_ROOM, "", nil))
 	requester.ConnMutex.Unlock()
 
 	return nil, nil

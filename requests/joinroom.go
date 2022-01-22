@@ -60,7 +60,7 @@ func (r JoinRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *
 	r.RequesterID = requester.ID
 
 	owner.ConnMutex.Lock()
-	owner.Conn.WriteJSON(res.Response{Status: res.JOIN_ROOM_PENDING, RequestCode: JOIN_ROOM, Payload: res.Payload{Info: r}})
+	owner.Conn.WriteJSON(res.NewResponse(res.JOIN_ROOM_PENDING, JOIN_ROOM, "", r))
 	owner.ConnMutex.Unlock()
 
 	log.Println(remoteAddr, "JoinRoomRequest success")

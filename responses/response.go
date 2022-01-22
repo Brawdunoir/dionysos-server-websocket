@@ -11,8 +11,8 @@ type Response struct {
 
 // Payload carry more information, it can be empty
 type Payload struct {
-	Info interface{} `json:"info"`
-	Err  string      `json:"error"`
+	Info interface{} `json:"info,omitempty"`
+	Err  string      `json:"error,omitempty"`
 }
 
 // CreateResponse returns a response
@@ -28,4 +28,8 @@ func CreateResponse(info interface{}, requestCode string, err error) (Response, 
 	}
 
 	return Response{Status: status, RequestCode: requestCode, Payload: payload}, err
+}
+
+func NewResponse(status, reqCode, err string, info interface{}) Response {
+	return Response{Status: status, RequestCode: reqCode, Payload: Payload{Info: info, Err: err}}
 }
