@@ -18,7 +18,7 @@ import (
 type JoinRoomRequest struct {
 	RequesterUsername string `json:"requesterUsername"`
 	RoomID            string `json:"roomId"`
-	RequesterID       string `json:"requesterId"`
+	RequesterID       string `json:"requesterId,omitempty"`
 }
 
 func (r JoinRoomRequest) Check() error {

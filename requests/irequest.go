@@ -7,14 +7,14 @@ import (
 
 // Requests codes
 const (
-	// Register a new user to the server and returns the user's ID in the payload.
+	// Register a new user to the server and return the user's ID in the payload.
 	NEW_CONNECTION = "NCO"
-	// Register a new room to the server and returns the room's ID in the payload.
+	// Register a new room to the server and return the room's ID in the payload.
 	NEW_ROOM = "NRO"
-	// Asks to join a room, returns nothing. The answer is sent after owner decision.
-	JOIN_ROOM           = "JRO"
-	ACCEPT_USER_TO_ROOM = "AUT"
-	DENY_USER_TO_ROOM   = "DUT"
+	// Ask to join a room, return nothing. The answer is sent after owner decision.
+	JOIN_ROOM = "JRO"
+	// Follow a JOIN_ROOM request. Grant or deny user access to the room, return nothing.
+	ANSWER_JOIN_ROOM = "AUT"
 )
 
 type IRequest interface {
