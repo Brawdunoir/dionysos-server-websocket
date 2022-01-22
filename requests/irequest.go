@@ -14,7 +14,7 @@ const (
 	// Ask to join a room, return nothing. The answer is sent after owner decision.
 	JOIN_ROOM = "JRO"
 	// Follow a JOIN_ROOM request. Grant or deny user access to the room, return nothing.
-	ANSWER_JOIN_ROOM = "AUT"
+	JOIN_ROOM_ANSWER = "AUT"
 )
 
 type IRequest interface {

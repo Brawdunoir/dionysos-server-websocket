@@ -4,6 +4,10 @@ package responses
 const (
 	SUCCESS = "SUC"
 	ERROR   = "ERR"
-	// The client received a JoinRoomRequest with this status
+	// Ask room's owner to take a decision on wathever to accept or deny room access to an user (requester)
 	JOIN_ROOM_PENDING = "JRP"
+	// Request had been accepted
+	REQUEST_ACCEPTED = "REA"
+	// Request had been refused
+	REQUEST_DENIED = "RED"
 )
