@@ -1,5 +1,9 @@
 package responses
 
+import (
+	"encoding/json"
+)
+
 // Status is a const defined in iresponse.go
 // RequestCode is the request's code that triggered this response
 // Payload carry more information, it can be empty
@@ -11,25 +15,40 @@ type Response struct {
 
 // Payload carry more information, it can be empty
 type Payload struct {
-	Info interface{} `json:"info,omitempty"`
-	Err  string      `json:"error,omitempty"`
+	Info json.RawMessage `json:"info,omitempty"`
+	Err  string          `json:"error,omitempty"`
 }
 
-// CreateResponse returns a response
+// CreateResponse return a SUCCESS/ERROR response and keep error from signature
 func CreateResponse(info interface{}, requestCode string, err error) (Response, error) {
-	var status string
-	payload := Payload{Info: info}
-
+	var serr string
 	if err == nil {
-		status = SUCCESS
+		serr = ""
 	} else {
-		status = ERROR
-		payload.Err = err.Error()
+		serr = err.Error()
 	}
 
-	return Response{Status: status, RequestCode: requestCode, Payload: payload}, err
+	res, nerr := NewResponse(SUCCESS, requestCode, serr, info)
+	if nerr != nil {
+		return res, nerr
+	}
+	return res, err
 }
 
-func NewResponse(status, reqCode, err string, info interface{}) Response {
-	return Response{Status: status, RequestCode: reqCode, Payload: Payload{Info: info, Err: err}}
+// NewResponse return a simple response without keeping error from signature
+func NewResponse(status, reqCode, err string, info interface{}) (Response, error) {
+	var payload Payload
+
+	if info != nil {
+		info, err := json.Marshal(info)
+		if err == nil {
+			payload.Info = info
+		} else {
+			return Response{}, err
+		}
+	}
+	if err != "" {
+		payload.Err = err
+	}
+	return Response{Status: status, RequestCode: reqCode, Payload: payload}, nil
 }
