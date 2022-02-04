@@ -52,8 +52,12 @@ func (req Request) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Us
 		var r JoinRoomRequest
 		err = json.Unmarshal(req.Payload, &r)
 		request = r
+	case JOIN_ROOM_ANSWER:
+		var r JoinRoomAnswerRequest
+		err = json.Unmarshal(req.Payload, &r)
+		request = r
 	default:
-		return responses.CreateResponse(nil, req.Code, errors.New("unknown code"))
+		return responses.CreateResponse(nil, req.Code, errors.New("unknown code, server side"))
 	}
 	if err != nil {
 		return responses.CreateResponse(nil, req.Code, err)
