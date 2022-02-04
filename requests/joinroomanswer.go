@@ -20,6 +20,12 @@ type JoinRoomAnswerRequest struct {
 func (r JoinRoomAnswerRequest) Check() error {
 	var err error
 
+	if r.OwnerName == "" {
+		err = fmt.Errorf("%w; ownerName is empty", err)
+	}
+	if r.RoomID == "" {
+		err = fmt.Errorf("%w; roomId is empty", err)
+	}
 	if r.RequesterID == "" {
 		err = fmt.Errorf("%w; requesterId is empty", err)
 	}
