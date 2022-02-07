@@ -30,3 +30,7 @@ func (r NewConnectionRequest) Handle(remoteAddr string, conn *websocket.Conn, us
 
 	return userID, nil
 }
+
+func (r NewConnectionRequest) Code() string {
+	return NEW_CONNECTION
+}

@@ -71,3 +71,7 @@ func (r JoinRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *
 
 	return nil, nil
 }
+
+func (r JoinRoomRequest) Code() string {
+	return JOIN_ROOM
+}

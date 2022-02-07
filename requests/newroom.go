@@ -40,3 +40,7 @@ func (r NewRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *o
 
 	return roomID, nil
 }
+
+func (r NewRoomRequest) Code() string {
+	return NEW_ROOM
+}

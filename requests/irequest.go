@@ -14,10 +14,11 @@ const (
 	// Ask to join a room, return nothing. The answer is sent after owner decision.
 	JOIN_ROOM = "JRO"
 	// Follow a JOIN_ROOM request. Grant or deny user access to the room, return nothing.
-	JOIN_ROOM_ANSWER = "AUT"
+	JOIN_ROOM_ANSWER = "JRA"
 )
 
 type IRequest interface {
 	Check() error
 	Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) (interface{}, error)
+	Code() string
 }
