@@ -34,7 +34,7 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		response, err := req.Handle(r.RemoteAddr, conn, users, rooms)
+		response := req.Handle(r.RemoteAddr, conn, users, rooms)
 		if err != nil {
 			log.Println("wrong request from client:", err)
 		}

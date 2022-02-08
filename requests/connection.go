@@ -5,6 +5,7 @@ import (
 	"log"
 
 	obj "github.com/Brawdunoir/goplay-server/objects"
+	res "github.com/Brawdunoir/goplay-server/responses"
 	"github.com/gorilla/websocket"
 )
 
@@ -23,12 +24,12 @@ func (r NewConnectionRequest) Check() error {
 }
 
 // Handles a new connection from a client.
-func (r NewConnectionRequest) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) (interface{}, error) {
+func (r NewConnectionRequest) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) res.Response {
 	userID := users.AddUser(r.Username, remoteAddr, conn)
 
 	log.Println(remoteAddr, "NewConnectionRequest success")
 
-	return userID, nil
+	return res.NewResponse(res.ConnectionResponse{Username: r.Username, UserID: userID})
 }
 
 func (r NewConnectionRequest) Code() string {

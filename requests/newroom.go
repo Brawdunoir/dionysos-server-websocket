@@ -5,6 +5,7 @@ import (
 	"log"
 
 	obj "github.com/Brawdunoir/goplay-server/objects"
+	res "github.com/Brawdunoir/goplay-server/responses"
 	"github.com/gorilla/websocket"
 )
 
@@ -27,18 +28,18 @@ func (r NewRoomRequest) Check() error {
 }
 
 // Handles a new room demand from a client.
-func (r NewRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) (interface{}, error) {
+func (r NewRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) res.Response {
 	// Retrieve owner info
 	owner, err := users.User(r.OwnerName, remoteAddr)
 	if err != nil {
-		return nil, fmt.Errorf("%w, cannot retrieve user info from database, has he logged in first ?", err)
+		return res.NewErrorResponse(fmt.Errorf("%w, cannot retrieve user info from database, has he logged in first ?", err))
 	}
 
 	roomID := rooms.AddRoom(r.RoomName, owner)
 
 	log.Println(remoteAddr, "NewRoomRequest success")
 
-	return roomID, nil
+	return res.NewResponse(res.NewRoomResponse{RoomID: roomID})
 }
 
 func (r NewRoomRequest) Code() string {

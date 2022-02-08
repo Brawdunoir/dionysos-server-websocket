@@ -49,7 +49,7 @@ func (rooms *Rooms) AddPeer(roomID string, u *user) (*room, error) {
 }
 
 // Peers return a user slice of connected peers in a room
-func (rooms *Rooms) Peers(roomID string) ([]*user, error) {
+func (rooms *Rooms) Peers(roomID string) (PeersType, error) {
 	r, err := rooms.Room(roomID)
 	if err != nil {
 		return nil, err

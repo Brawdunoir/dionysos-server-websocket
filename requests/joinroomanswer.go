@@ -38,88 +38,83 @@ func (r JoinRoomAnswerRequest) Check() error {
 // to every other peer in the room the newcoming, in addition to
 // send the complete list of peer to the requester.
 // In the second case, signal to the requester that his request had been denied
-func (r JoinRoomAnswerRequest) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) (interface{}, error) {
-	var v interface{}
-	var err error
+func (r JoinRoomAnswerRequest) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) (response res.Response) {
 
 	if r.Accepted {
-		v, err = handleAccept(r, remoteAddr, conn, users, rooms)
+		response = handleAccept(r, remoteAddr, conn, users, rooms)
 	} else {
-		v, err = handleDeny(r, remoteAddr, conn, users, rooms)
+		response = handleDeny(r, remoteAddr, conn, users, rooms)
 	}
 
 	log.Println(remoteAddr, "JoinRoomAnswerRequest success")
 
-	return v, err
+	return
 }
 
-func handleAccept(r JoinRoomAnswerRequest, remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) (interface{}, error) {
+func handleAccept(r JoinRoomAnswerRequest, remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) res.Response {
 	// Fetch requester, owner and room info
 	requester, err := users.UserByID(r.RequesterID)
 	if err != nil {
-		return nil, err
+		log.Println("can not retrieve requester info", err)
+		return res.NewErrorResponse(errors.New("you are not connected"))
 	}
 
 	owner, err := users.User(r.OwnerName, remoteAddr)
 	if err != nil {
-		return nil, err
+		log.Println("can not retrieve owner info", err)
+		return res.NewErrorResponse(errors.New("room's owner is disconnected"))
 	}
 
 	room, err := rooms.Room(r.RoomID)
 	if err != nil {
-		return nil, err
+		log.Println(err)
+		return res.NewErrorResponse(errors.New("the room does not exist or has been deleted"))
 	}
 
 	// Assert user from this request is the legal owner of the room
 	if room.OwnerID != owner.ID {
-		return nil, errors.New("you do not have this permission")
+		return res.NewErrorResponse(errors.New("you do not have this permission, you are not the room's owner"))
 	}
 
 	peers, err := rooms.Peers(r.RoomID)
 	if err != nil {
-		return nil, err
+		log.Println(err)
+		return res.NewErrorResponse(errors.New("error when retrieving peers in room"))
 	}
 	// Add the newcoming to the list of the peer before sending all the messages to existing peers
 	rooms.AddPeer(r.RoomID, requester)
+	newPeersResponse := res.NewResponse(res.NewPeersResponse{Peers: room.Peers})
 
-	// Send requester info to all actual peers
+	// Send updated peers list to all actual peers…
 	for _, peer := range peers {
+
 		peer.ConnMutex.Lock()
-		res, err := res.NewResponse(res.NEW_PEER, JOIN_ROOM_ANSWER, "", requester)
-		if err != nil {
-			return nil, err
-		}
-		peer.Conn.WriteJSON(res)
+		peer.Conn.WriteJSON(newPeersResponse)
 		peer.ConnMutex.Unlock()
 	}
 
-	// Send actual peers info to the newcoming
+	// …and to the newcoming
 	requester.ConnMutex.Lock()
-	res, err := res.NewResponse(res.REQUEST_ACCEPTED, JOIN_ROOM, "", peers)
-	if err != nil {
-		return nil, err
-	}
-	requester.Conn.WriteJSON(res)
+	requester.Conn.WriteJSON(newPeersResponse)
 	requester.ConnMutex.Unlock()
 
-	return nil, nil
+	return res.NewResponse(res.SuccessResponse{RequestCode: JOIN_ROOM_ANSWER})
 }
 
-func handleDeny(r JoinRoomAnswerRequest, remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) (interface{}, error) {
+func handleDeny(r JoinRoomAnswerRequest, remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) res.Response {
 	requester, err := users.UserByID(r.RequesterID)
 	if err != nil {
-		return nil, err
+		log.Println(err)
+		return res.NewErrorResponse(errors.New("you are not connected"))
 	}
 
+	// res, err := res.NewResponse(res.REQUEST_DENIED, JOIN_ROOM, "", nil)
+	requesterResponse := res.NewResponse(res.DeniedResponse{RequestCode: JOIN_ROOM})
 	requester.ConnMutex.Lock()
-	res, err := res.NewResponse(res.REQUEST_DENIED, JOIN_ROOM, "", nil)
-	if err != nil {
-		return nil, err
-	}
-	requester.Conn.WriteJSON(res)
+	requester.Conn.WriteJSON(requesterResponse)
 	requester.ConnMutex.Unlock()
 
-	return nil, nil
+	return res.NewResponse(res.SuccessResponse{RequestCode: JOIN_ROOM_ANSWER})
 }
 
 func (r JoinRoomAnswerRequest) Code() string {

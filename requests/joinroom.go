@@ -15,11 +15,7 @@ import (
 // RequesterID is set by the server and send to the room's owner.
 // This way, the owner answer Yes or No to the request
 // and join the RequesterID to his answer.
-type JoinRoomRequest struct {
-	RequesterUsername string `json:"requesterUsername"`
-	RoomID            string `json:"roomId"`
-	RequesterID       string `json:"requesterId,omitempty"`
-}
+type JoinRoomRequest res.JoinRoomPendingResponse
 
 func (r JoinRoomRequest) Check() error {
 	var err error
@@ -36,40 +32,38 @@ func (r JoinRoomRequest) Check() error {
 }
 
 // Handles a join room demand from a client by contacting the room's owner
-func (r JoinRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) (interface{}, error) {
+func (r JoinRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) res.Response {
 	// Fetch client, room and room owner info
 	requester, err := users.User(r.RequesterUsername, remoteAddr)
 	if err != nil {
-		return nil, fmt.Errorf("%w, can not retrieve requester info", err)
+		log.Println("can not retrieve requester info", err)
+		return res.NewErrorResponse(errors.New("you are not connected"))
 	}
 
 	room, err := rooms.Room(r.RoomID)
 	if err != nil {
-		return nil, err
+		log.Println(err)
+		return res.NewErrorResponse(errors.New("the room does not exist or has been deleted"))
 	}
 	owner, err := users.UserByID(room.OwnerID)
 	if err != nil {
-		return nil, fmt.Errorf("%w, can not retrieve owner info", err)
+		log.Println("can not retrieve owner info", err)
+		return res.NewErrorResponse(errors.New("room's owner is disconnected"))
 	}
 
 	if room.IsPeerPresent(requester) {
-		return nil, errors.New("user is already in the room")
+		return res.NewErrorResponse(errors.New("you seem to be already in room"))
 	}
 
-	// Add RequesterID to the request before sending it to the room's owner
-	r.RequesterID = requester.ID
-
+	// Send request to room's owner for confirmation
+	ownerRequest := res.NewResponse(res.JoinRoomPendingResponse{RoomID: room.ID, RequesterUsername: requester.Name, RequesterID: requester.ID})
 	owner.ConnMutex.Lock()
-	res, err := res.NewResponse(res.JOIN_ROOM_PENDING, JOIN_ROOM, "", r)
-	if err != nil {
-		return nil, err
-	}
-	owner.Conn.WriteJSON(res)
+	owner.Conn.WriteJSON(ownerRequest)
 	owner.ConnMutex.Unlock()
 
 	log.Println(remoteAddr, "JoinRoomRequest success")
 
-	return nil, nil
+	return res.NewResponse(res.SuccessResponse{RequestCode: res.CodeType(r.Code())})
 }
 
 func (r JoinRoomRequest) Code() string {

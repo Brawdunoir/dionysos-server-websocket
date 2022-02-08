@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	obj "github.com/Brawdunoir/goplay-server/objects"
-	responses "github.com/Brawdunoir/goplay-server/responses"
+	res "github.com/Brawdunoir/goplay-server/responses"
 	"github.com/gorilla/websocket"
 )
 
@@ -30,10 +30,10 @@ func (r Request) Check() error {
 
 // Handle creates a new request corresponding to the Code field
 // and calls the Handle function on this new request
-func (req Request) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) (interface{}, error) {
+func (req Request) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) res.Response {
 	err := req.Check()
 	if err != nil {
-		return responses.CreateResponse(nil, req.Code, err)
+		return res.NewErrorResponse(err)
 	}
 
 	var request IRequest
@@ -57,17 +57,16 @@ func (req Request) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Us
 		err = json.Unmarshal(req.Payload, &r)
 		request = r
 	default:
-		return responses.CreateResponse(nil, req.Code, errors.New("unknown code, server side"))
+		return res.NewErrorResponse(fmt.Errorf("unknown code: %s", req.Code))
 	}
 	if err != nil {
-		return responses.CreateResponse(nil, req.Code, err)
+		return res.NewErrorResponse(errors.New("payload json not valid"))
 	}
 
 	err = request.Check()
 	if err != nil {
-		return responses.CreateResponse(nil, req.Code, err)
+		return res.NewErrorResponse(err)
 	}
 
-	v, err := request.Handle(remoteAddr, conn, users, rooms)
-	return responses.CreateResponse(v, req.Code, err)
+	return request.Handle(remoteAddr, conn, users, rooms)
 }

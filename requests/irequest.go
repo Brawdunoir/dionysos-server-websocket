@@ -2,6 +2,7 @@ package requests
 
 import (
 	obj "github.com/Brawdunoir/goplay-server/objects"
+	responses "github.com/Brawdunoir/goplay-server/responses"
 	"github.com/gorilla/websocket"
 )
 
@@ -19,6 +20,6 @@ const (
 
 type IRequest interface {
 	Check() error
-	Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) (interface{}, error)
+	Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) responses.Response
 	Code() string
 }

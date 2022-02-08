@@ -6,12 +6,14 @@ import (
 	"sync"
 )
 
+type PeersType []*user
+
 // room represents data about a room for peers.
 type room struct {
 	ID      string     `json:"id"`
 	Name    string     `json:"name"`
 	OwnerID string     `json:"ownerid"`
-	Peers   []*user    `json:"peers"`
+	Peers   PeersType  `json:"peers"`
 	mu      sync.Mutex `json:"-"`
 }
 
@@ -61,5 +63,5 @@ func generateRoomID(roomName, ownerRemoteAddr string) string {
 
 // Creates a new room
 func newRoom(roomName string, owner *user) *room {
-	return &room{ID: generateRoomID(roomName, owner.RemoteAddr), Name: roomName, OwnerID: owner.ID, Peers: []*user{owner}}
+	return &room{ID: generateRoomID(roomName, owner.RemoteAddr), Name: roomName, OwnerID: owner.ID, Peers: PeersType{owner}}
 }
