@@ -7,7 +7,7 @@ import (
 )
 
 // User defines a user
-type user struct {
+type User struct {
 	ID         string          `json:"id"`
 	Name       string          `json:"name"`
 	RemoteAddr string          `json:"-"`
@@ -15,7 +15,7 @@ type user struct {
 	ConnMutex  sync.Mutex      `json:"-"`
 }
 
-func (u *user) String() string {
+func (u *User) String() string {
 	return u.Name + " (" + u.RemoteAddr + ")"
 }
 
@@ -25,6 +25,6 @@ func generateUserID(remoteAddr, username string) string {
 }
 
 // newUser creates a new user
-func newUser(username, remoteAddr string, conn *websocket.Conn) *user {
-	return &user{ID: generateUserID(remoteAddr, username), Name: username, RemoteAddr: remoteAddr, ConnMutex: sync.Mutex{}, Conn: conn}
+func NewUser(username, remoteAddr string, conn *websocket.Conn) *User {
+	return &User{ID: generateUserID(remoteAddr, username), Name: username, RemoteAddr: remoteAddr, ConnMutex: sync.Mutex{}, Conn: conn}
 }

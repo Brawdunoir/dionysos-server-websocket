@@ -8,13 +8,13 @@ import (
 )
 
 type Users struct {
-	members map[string]*user
+	members map[string]*User
 	mu      sync.RWMutex
 }
 
 // Creates a new set of Users
 func NewUsers() *Users {
-	return &Users{members: make(map[string]*user)}
+	return &Users{members: make(map[string]*User)}
 }
 
 // AddUser creates a new user and add it to the set of users
@@ -25,7 +25,7 @@ func (users *Users) AddUser(username, remoteAddr string, conn *websocket.Conn) s
 		return u.ID
 	}
 
-	user := newUser(username, remoteAddr, conn)
+	user := NewUser(username, remoteAddr, conn)
 
 	users.mu.Lock()
 	users.members[user.ID] = user
@@ -36,7 +36,7 @@ func (users *Users) AddUser(username, remoteAddr string, conn *websocket.Conn) s
 
 // UserByID returns a user in a set of user given its ID
 // Return an error if the user is not in set
-func (users *Users) UserByID(userID string) (*user, error) {
+func (users *Users) UserByID(userID string) (*User, error) {
 	users.mu.RLock()
 	u, exists := users.members[userID]
 	users.mu.RUnlock()
@@ -50,7 +50,7 @@ func (users *Users) UserByID(userID string) (*user, error) {
 
 // User returns a user in a set of user given its username and remote address
 // Return an error if the user is not in set
-func (users *Users) User(username, remoteAddr string) (*user, error) {
+func (users *Users) User(username, remoteAddr string) (*User, error) {
 	userID := generateUserID(remoteAddr, username)
 
 	return users.UserByID(userID)

@@ -6,20 +6,20 @@ import (
 )
 
 type Rooms struct {
-	saloons map[string]*room
+	saloons map[string]*Room
 	mu      sync.RWMutex
 }
 
 // Creates a new set of Rooms
 func NewRooms() *Rooms {
-	return &Rooms{saloons: make(map[string]*room)}
+	return &Rooms{saloons: make(map[string]*Room)}
 }
 
 // AddRoom creates a new room and add it to the set of rooms
 // If the room already exists, do nothing
 // Returns the roomID of the existing or new created room
-func (rooms *Rooms) AddRoom(roomName string, owner *user) string {
-	room := newRoom(roomName, owner)
+func (rooms *Rooms) AddRoom(roomName string, owner *User) string {
+	room := NewRoom(roomName, owner)
 
 	_, exists := rooms.Room(room.ID)
 	if exists == nil {
@@ -34,13 +34,13 @@ func (rooms *Rooms) AddRoom(roomName string, owner *user) string {
 }
 
 // AddPeer add a peer to an existing room
-func (rooms *Rooms) AddPeer(roomID string, u *user) (*room, error) {
+func (rooms *Rooms) AddPeer(roomID string, u *User) (*Room, error) {
 	r, err := rooms.Room(roomID)
 	if err != nil {
 		return nil, err
 	}
 
-	err = r.addPeer(u)
+	err = r.AddPeer(u)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (rooms *Rooms) Peers(roomID string) (PeersType, error) {
 
 // Rooms returns a room in a set of room given its ID
 // Return an error if the room is not in set
-func (rooms *Rooms) Room(roomID string) (*room, error) {
+func (rooms *Rooms) Room(roomID string) (*Room, error) {
 	rooms.mu.RLock()
 	r, ok := rooms.saloons[roomID]
 	rooms.mu.RUnlock()
