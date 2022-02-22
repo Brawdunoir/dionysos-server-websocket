@@ -76,27 +76,11 @@ func handleAccept(r JoinRoomAnswerRequest, remoteAddr string, conn *websocket.Co
 		return res.NewErrorResponse(errors.New("you do not have this permission, you are not the room's owner"))
 	}
 
-	peers, err := rooms.Peers(r.RoomID)
+	// Add new peer to the list and notify all members
+	err = addPeerAndNotify(requester, rooms, r.RoomID)
 	if err != nil {
-		log.Println(err)
-		return res.NewErrorResponse(errors.New("error when retrieving peers in room"))
+		return res.NewErrorResponse(err)
 	}
-	// Add the newcoming to the list of the peer before sending all the messages to existing peers
-	rooms.AddPeer(r.RoomID, requester)
-	newPeersResponse := res.NewResponse(res.NewPeersResponse{Peers: room.Peers})
-
-	// Send updated peers list to all actual peers…
-	for _, peer := range peers {
-
-		peer.ConnMutex.Lock()
-		peer.Conn.WriteJSON(newPeersResponse)
-		peer.ConnMutex.Unlock()
-	}
-
-	// …and to the newcoming
-	requester.ConnMutex.Lock()
-	requester.Conn.WriteJSON(newPeersResponse)
-	requester.ConnMutex.Unlock()
 
 	return res.NewResponse(res.SuccessResponse{RequestCode: JOIN_ROOM_ANSWER})
 }
@@ -119,4 +103,24 @@ func handleDeny(r JoinRoomAnswerRequest, remoteAddr string, conn *websocket.Conn
 
 func (r JoinRoomAnswerRequest) Code() string {
 	return JOIN_ROOM_ANSWER
+}
+
+func addPeerAndNotify(requester *obj.User, rooms *obj.Rooms, roomID string) error {
+	// Add the newcoming to the list of the peer before notifying
+	rooms.AddPeer(roomID, requester)
+
+	peers, err := rooms.Peers(roomID)
+	if err != nil {
+		log.Println(err)
+		return errors.New("error when retrieving peers in room")
+	}
+
+	// Send updated peers list to all peers
+	for _, peer := range peers {
+		peer.ConnMutex.Lock()
+		peer.Conn.WriteJSON(res.NewResponse(res.NewPeersResponse{Peers: peers}))
+		peer.ConnMutex.Unlock()
+	}
+
+	return nil
 }
