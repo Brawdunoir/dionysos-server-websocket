@@ -12,6 +12,7 @@ import (
 type NewRoomRequest struct {
 	RoomName  string `json:"roomName"`
 	OwnerName string `json:"ownerName"`
+	IsPrivate bool   `json:"isPrivate"`
 }
 
 func (r NewRoomRequest) Check() error {
@@ -35,7 +36,7 @@ func (r NewRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *o
 		return res.NewErrorResponse(fmt.Errorf("%w, cannot retrieve user info from database, has he logged in first ?", err))
 	}
 
-	roomID := rooms.AddRoom(r.RoomName, owner)
+	roomID := rooms.AddRoom(r.RoomName, owner, r.IsPrivate)
 
 	log.Println(remoteAddr, "NewRoomRequest success")
 

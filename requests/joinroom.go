@@ -31,7 +31,9 @@ func (r JoinRoomRequest) Check() error {
 	return err
 }
 
-// Handles a join room demand from a client by contacting the room's owner
+// Handles a join room demand from a client by contacting
+// the room's owner if the room is private.
+// Otherwise it just add the peer to the room.
 func (r JoinRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) res.Response {
 	// Fetch client, room and room owner info
 	requester, err := users.User(r.RequesterUsername, remoteAddr)
@@ -55,11 +57,14 @@ func (r JoinRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *
 		return res.NewErrorResponse(errors.New("you seem to be already in room"))
 	}
 
-	// Send request to room's owner for confirmation
-	ownerRequest := res.NewResponse(res.JoinRoomPendingResponse{RoomID: room.ID, RequesterUsername: requester.Name, RequesterID: requester.ID})
-	owner.ConnMutex.Lock()
-	owner.Conn.WriteJSON(ownerRequest)
-	owner.ConnMutex.Unlock()
+	if room.IsPrivate { // Private room: send request to room's owner for confirmation
+		ownerRequest := res.NewResponse(res.JoinRoomPendingResponse{RoomID: room.ID, RequesterUsername: requester.Name, RequesterID: requester.ID})
+		owner.ConnMutex.Lock()
+		owner.Conn.WriteJSON(ownerRequest)
+		owner.ConnMutex.Unlock()
+	} else { // Public room: Directly add the peer and notify everybody
+		addPeerAndNotify(requester, rooms, r.RoomID)
+	}
 
 	log.Println(remoteAddr, "JoinRoomRequest success")
 

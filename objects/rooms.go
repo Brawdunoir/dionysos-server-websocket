@@ -18,8 +18,8 @@ func NewRooms() *Rooms {
 // AddRoom creates a new room and add it to the set of rooms
 // If the room already exists, do nothing
 // Returns the roomID of the existing or new created room
-func (rooms *Rooms) AddRoom(roomName string, owner *User) string {
-	room := NewRoom(roomName, owner)
+func (rooms *Rooms) AddRoom(roomName string, owner *User, isPrivate bool) string {
+	room := NewRoom(roomName, owner, isPrivate)
 
 	_, exists := rooms.Room(room.ID)
 	if exists == nil {

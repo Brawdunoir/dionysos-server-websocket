@@ -10,11 +10,12 @@ type PeersType []*User
 
 // room represents data about a room for peers.
 type Room struct {
-	ID      string     `json:"id"`
-	Name    string     `json:"name"`
-	OwnerID string     `json:"ownerid"`
-	Peers   PeersType  `json:"peers"`
-	mu      sync.Mutex `json:"-"`
+	ID        string     `json:"id"`
+	Name      string     `json:"name"`
+	OwnerID   string     `json:"ownerid"`
+	Peers     PeersType  `json:"peers"`
+	IsPrivate bool       `json:"isPrivate"`
+	mu        sync.Mutex `json:"-"`
 }
 
 func (r *Room) String() string {
@@ -62,6 +63,6 @@ func generateRoomID(roomName, ownerRemoteAddr string) string {
 }
 
 // Creates a new room
-func NewRoom(roomName string, owner *User) *Room {
-	return &Room{ID: generateRoomID(roomName, owner.RemoteAddr), Name: roomName, OwnerID: owner.ID, Peers: PeersType{owner}}
+func NewRoom(roomName string, owner *User, isPrivate bool) *Room {
+	return &Room{ID: generateRoomID(roomName, owner.RemoteAddr), Name: roomName, OwnerID: owner.ID, Peers: PeersType{owner}, IsPrivate: isPrivate}
 }
