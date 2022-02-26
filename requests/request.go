@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	obj "github.com/Brawdunoir/goplay-server/objects"
-	res "github.com/Brawdunoir/goplay-server/responses"
+	obj "github.com/Brawdunoir/dionysos-server/objects"
+	res "github.com/Brawdunoir/dionysos-server/responses"
 	"github.com/gorilla/websocket"
 )
 

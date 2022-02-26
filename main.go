@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Brawdunoir/goplay-server/objects"
-	"github.com/Brawdunoir/goplay-server/requests"
+	"github.com/Brawdunoir/dionysos-server/objects"
+	"github.com/Brawdunoir/dionysos-server/requests"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 )

@@ -1,8 +1,8 @@
 package requests
 
 import (
-	obj "github.com/Brawdunoir/goplay-server/objects"
-	responses "github.com/Brawdunoir/goplay-server/responses"
+	obj "github.com/Brawdunoir/dionysos-server/objects"
+	responses "github.com/Brawdunoir/dionysos-server/responses"
 	"github.com/gorilla/websocket"
 )
 

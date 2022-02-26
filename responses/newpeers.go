@@ -3,7 +3,7 @@ package responses
 import (
 	"encoding/json"
 
-	"github.com/Brawdunoir/goplay-server/objects"
+	"github.com/Brawdunoir/dionysos-server/objects"
 )
 
 type NewPeersResponse struct {
