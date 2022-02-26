@@ -1,4 +1,4 @@
-module github.com/Brawdunoir/goplay-server
+module github.com/Brawdunoir/dionysos-server
 
 go 1.17
 
