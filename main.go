@@ -10,9 +10,18 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{} // use default options
+var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool {return true}} // use default options
 var users = objects.NewUsers()      // list of users connected
 var rooms = objects.NewRooms()      // list of rooms registered
+
+func main() {
+	log.Println("Starting…")
+	router := mux.NewRouter().StrictSlash(true)
+	router.HandleFunc("/", socketHandler)
+	log.Println("Listening…")
+	http.ListenAndServe(":8080", router)
+}
+
 
 func socketHandler(w http.ResponseWriter, r *http.Request) {
 	// Upgrade our raw HTTP connection to a websocket based one
@@ -40,12 +49,4 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		conn.WriteJSON(response)
 	}
-}
-
-func main() {
-	log.Println("Starting…")
-	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/", socketHandler)
-	log.Println("Listening…")
-	http.ListenAndServe(":8080", router)
 }
