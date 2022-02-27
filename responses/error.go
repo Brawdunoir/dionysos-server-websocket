@@ -11,6 +11,6 @@ func (r ErrorResponse) Code() CodeType {
 	return ERROR
 }
 
-func (r ErrorResponse) MarshalJSON() ([]byte, error) {
+func (r ErrorResponse) Marshal() ([]byte, error) {
 	return json.Marshal(r)
 }

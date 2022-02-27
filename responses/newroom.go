@@ -10,6 +10,6 @@ func (r NewRoomResponse) Code() CodeType {
 	return ROOM_CREATION_SUCCESSS
 }
 
-func (r NewRoomResponse) MarshalJSON() ([]byte, error) {
+func (r NewRoomResponse) Marshal() ([]byte, error) {
 	return json.Marshal(r)
 }

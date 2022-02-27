@@ -22,5 +22,5 @@ const (
 
 type IResponse interface {
 	Code() CodeType
-	MarshalJSON() ([]byte, error)
+	Marshal() ([]byte, error)
 }

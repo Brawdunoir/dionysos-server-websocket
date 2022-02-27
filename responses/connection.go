@@ -13,6 +13,6 @@ func (r ConnectionResponse) Code() CodeType {
 	return CONNECTION_SUCCESS
 }
 
-func (r ConnectionResponse) MarshalJSON() ([]byte, error) {
+func (r ConnectionResponse) Marshal() ([]byte, error) {
 	return json.Marshal(r)
 }

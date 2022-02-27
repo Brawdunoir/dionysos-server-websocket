@@ -10,6 +10,6 @@ func (r SuccessResponse) Code() CodeType {
 	return SUCCESS
 }
 
-func (r SuccessResponse) MarshalJSON() ([]byte, error) {
+func (r SuccessResponse) Marshal() ([]byte, error) {
 	return json.Marshal(r)
 }

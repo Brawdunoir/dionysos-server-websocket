@@ -20,7 +20,7 @@ func NewResponse(r IResponse) Response {
 		log.Println("Response does not implement IResponse interface", err)
 		return createResponse(ErrorResponse{Error: err})
 	}
-	_, err := r.MarshalJSON()
+	_, err := r.Marshal()
 	if err != nil {
 		log.Println("cannot marshal IResponse to JSON")
 		return createResponse(ErrorResponse{Error: err})
@@ -35,7 +35,7 @@ func NewErrorResponse(err error) Response {
 }
 
 func createResponse(r IResponse) Response {
-	payload, err := r.MarshalJSON()
+	payload, err := r.Marshal()
 	if err != nil {
 		log.Println("error in createResponse", err)
 	}

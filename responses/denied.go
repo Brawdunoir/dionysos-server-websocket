@@ -10,6 +10,6 @@ func (r DeniedResponse) Code() CodeType {
 	return DENIED
 }
 
-func (r DeniedResponse) MarshalJSON() ([]byte, error) {
+func (r DeniedResponse) Marshal() ([]byte, error) {
 	return json.Marshal(r)
 }

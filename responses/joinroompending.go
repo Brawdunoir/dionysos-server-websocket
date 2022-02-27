@@ -18,6 +18,6 @@ func (r JoinRoomPendingResponse) Code() CodeType {
 	return JOIN_ROOM_PENDING
 }
 
-func (r JoinRoomPendingResponse) MarshalJSON() ([]byte, error) {
+func (r JoinRoomPendingResponse) Marshal() ([]byte, error) {
 	return json.Marshal(r)
 }
