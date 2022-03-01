@@ -16,6 +16,8 @@ const (
 	JOIN_ROOM = "JRO"
 	// Follow a JOIN_ROOM request. Grant or deny user access to the room, return nothing.
 	JOIN_ROOM_ANSWER = "JRA"
+	// Forward the message to all peers within the room. The messages are not keeped in the rooms.
+	NEW_MESSAGE = "NMS"
 )
 
 type IRequest interface {
