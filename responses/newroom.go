@@ -3,7 +3,8 @@ package responses
 import "encoding/json"
 
 type NewRoomResponse struct {
-	RoomID string `json:"roomId"`
+	RoomID   string `json:"roomId"`
+	RoomName string `json:"roomName"`
 }
 
 func (r NewRoomResponse) Code() CodeType {

@@ -40,7 +40,7 @@ func (r NewRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *o
 
 	log.Println(remoteAddr, "NewRoomRequest success")
 
-	return res.NewResponse(res.NewRoomResponse{RoomID: roomID})
+	return res.NewResponse(res.NewRoomResponse{RoomID: roomID, RoomName: r.RoomName})
 }
 
 func (r NewRoomRequest) Code() string {
