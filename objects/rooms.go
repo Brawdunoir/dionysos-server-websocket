@@ -2,6 +2,7 @@ package objects
 
 import (
 	"errors"
+	"log"
 	"sync"
 )
 
@@ -66,7 +67,8 @@ func (rooms *Rooms) Room(roomID string) (*Room, error) {
 	rooms.mu.RUnlock()
 
 	if !ok {
-		return nil, errors.New("room does not exist, ID: " + roomID)
+		log.Println("access to unknown room, ID: " + roomID)
+		return nil, errors.New(ROOM_NIL)
 	}
 	return r, nil
 }
