@@ -18,6 +18,8 @@ const (
 	DENIED = "DEN"
 	// Signal that a new peer joined the room
 	NEW_PEER = "NEP"
+	// Signal that a new message has been sent
+	NEW_MESSAGE = "NMS"
 )
 
 type IResponse interface {
