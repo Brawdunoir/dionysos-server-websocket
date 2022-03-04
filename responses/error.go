@@ -4,7 +4,7 @@ import "encoding/json"
 
 // ErrorResponse correspond to a failed request
 type ErrorResponse struct {
-	Error error `json:"error"`
+	Error string `json:"error"`
 }
 
 func (r ErrorResponse) Code() CodeType {

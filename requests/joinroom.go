@@ -1,7 +1,6 @@
 package requests
 
 import (
-	"errors"
 	"fmt"
 	"log"
 
@@ -39,22 +38,22 @@ func (r JoinRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *
 	requester, err := users.User(r.RequesterUsername, remoteAddr)
 	if err != nil {
 		log.Println("can not retrieve requester info", err)
-		return res.NewErrorResponse(errors.New("you are not connected"))
+		return res.NewErrorResponse("you are not connected")
 	}
 
 	room, err := rooms.Room(r.RoomID)
 	if err != nil {
 		log.Println(err)
-		return res.NewErrorResponse(errors.New("the room does not exist or has been deleted"))
+		return res.NewErrorResponse("the room does not exist or has been deleted")
 	}
 	owner, err := users.UserByID(room.OwnerID)
 	if err != nil {
 		log.Println("can not retrieve owner info", err)
-		return res.NewErrorResponse(errors.New("room's owner is disconnected"))
+		return res.NewErrorResponse("room's owner is disconnected")
 	}
 
 	if room.IsPeerPresent(requester) {
-		return res.NewErrorResponse(errors.New("you seem to be already in room"))
+		return res.NewErrorResponse("you seem to be already in room")
 	}
 
 	if room.IsPrivate { // Private room: send request to room's owner for confirmation

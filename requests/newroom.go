@@ -33,7 +33,7 @@ func (r NewRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *o
 	// Retrieve owner info
 	owner, err := users.User(r.OwnerName, remoteAddr)
 	if err != nil {
-		return res.NewErrorResponse(fmt.Errorf("%w, cannot retrieve user info from database, has he logged in first ?", err))
+		return res.NewErrorResponse(fmt.Sprintf("%w, cannot retrieve user info from database, has he logged in first ?", err))
 	}
 
 	roomID := rooms.AddRoom(r.RoomName, owner, r.IsPrivate)

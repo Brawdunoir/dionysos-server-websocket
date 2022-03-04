@@ -56,30 +56,30 @@ func handleAccept(r JoinRoomAnswerRequest, remoteAddr string, conn *websocket.Co
 	requester, err := users.UserByID(r.RequesterID)
 	if err != nil {
 		log.Println("can not retrieve requester info", err)
-		return res.NewErrorResponse(errors.New("you are not connected"))
+		return res.NewErrorResponse("you are not connected")
 	}
 
 	owner, err := users.User(r.OwnerName, remoteAddr)
 	if err != nil {
 		log.Println("can not retrieve owner info", err)
-		return res.NewErrorResponse(errors.New("room's owner is disconnected"))
+		return res.NewErrorResponse("room's owner is disconnected")
 	}
 
 	room, err := rooms.Room(r.RoomID)
 	if err != nil {
 		log.Println(err)
-		return res.NewErrorResponse(errors.New("the room does not exist or has been deleted"))
+		return res.NewErrorResponse("the room does not exist or has been deleted")
 	}
 
 	// Assert user from this request is the legal owner of the room
 	if room.OwnerID != owner.ID {
-		return res.NewErrorResponse(errors.New("you do not have this permission, you are not the room's owner"))
+		return res.NewErrorResponse("you do not have this permission, you are not the room's owner")
 	}
 
 	// Add new peer to the list and notify all members
 	err = addPeerAndNotify(requester, rooms, r.RoomID)
 	if err != nil {
-		return res.NewErrorResponse(err)
+		return res.NewErrorResponse(err.Error())
 	}
 
 	return res.NewResponse(res.SuccessResponse{RequestCode: JOIN_ROOM_ANSWER})
@@ -89,7 +89,7 @@ func handleDeny(r JoinRoomAnswerRequest, remoteAddr string, conn *websocket.Conn
 	requester, err := users.UserByID(r.RequesterID)
 	if err != nil {
 		log.Println(err)
-		return res.NewErrorResponse(errors.New("you are not connected"))
+		return res.NewErrorResponse("you are not connected")
 	}
 
 	// res, err := res.NewResponse(res.REQUEST_DENIED, JOIN_ROOM, "", nil)

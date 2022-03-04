@@ -1,7 +1,6 @@
 package requests
 
 import (
-	"errors"
 	"fmt"
 	"log"
 
@@ -34,23 +33,23 @@ func (r NewMessageRequest) Handle(remoteAddr string, conn *websocket.Conn, users
 	// Fetch sender and room info
 	sender, err := users.User(r.Username, remoteAddr)
 	if err != nil {
-		return res.NewErrorResponse(err)
+		return res.NewErrorResponse(err.Error())
 	}
 
 	room, err := rooms.Room(r.RoomID)
 	if err != nil {
-		return res.NewErrorResponse(err)
+		return res.NewErrorResponse(err.Error())
 	}
 
 	// Check wethever the sender is in the room
 	if !room.IsPeerPresent(sender) {
-		return res.NewErrorResponse(errors.New(obj.NO_PERM))
+		return res.NewErrorResponse(obj.NO_PERM)
 	}
 
 	// Gather all peers and send the new message to all peers
 	peers, err := rooms.Peers(r.RoomID)
 	if err != nil {
-		return res.NewErrorResponse(err)
+		return res.NewErrorResponse(err.Error())
 	}
 
 	for _, peer := range peers {

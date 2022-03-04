@@ -2,7 +2,6 @@ package responses
 
 import (
 	"encoding/json"
-	"errors"
 	"log"
 )
 
@@ -16,21 +15,21 @@ type Response struct {
 // NewResponse return a well formatted response.
 func NewResponse(r IResponse) Response {
 	if r.Code() == "" {
-		err := errors.New("not a valid IResponse payload")
+		err := "not a valid IResponse payload"
 		log.Println("Response does not implement IResponse interface", err)
-		return createResponse(ErrorResponse{Error: err})
+		return NewErrorResponse(err)
 	}
 	_, err := r.Marshal()
 	if err != nil {
 		log.Println("cannot marshal IResponse to JSON")
-		return createResponse(ErrorResponse{Error: err})
+		return NewErrorResponse(err.Error())
 	}
 
 	return createResponse(r)
 }
 
 // NewErrorResponse return a well formatted response with a error payload.
-func NewErrorResponse(err error) Response {
+func NewErrorResponse(err string) Response {
 	return NewResponse(ErrorResponse{Error: err})
 }
 

@@ -2,7 +2,6 @@ package requests
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 
 	obj "github.com/Brawdunoir/dionysos-server/objects"
@@ -33,7 +32,7 @@ func (r Request) Check() error {
 func (req Request) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) res.Response {
 	err := req.Check()
 	if err != nil {
-		return res.NewErrorResponse(err)
+		return res.NewErrorResponse(err.Error())
 	}
 
 	var request IRequest
@@ -57,15 +56,15 @@ func (req Request) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Us
 		err = json.Unmarshal(req.Payload, &r)
 		request = r
 	default:
-		return res.NewErrorResponse(fmt.Errorf("unknown code: %s", req.Code))
+		return res.NewErrorResponse(fmt.Sprintf("unknown code: %s", req.Code))
 	}
 	if err != nil {
-		return res.NewErrorResponse(errors.New("payload json not valid"))
+		return res.NewErrorResponse("payload json not valid")
 	}
 
 	err = request.Check()
 	if err != nil {
-		return res.NewErrorResponse(err)
+		return res.NewErrorResponse(err.Error())
 	}
 
 	return request.Handle(remoteAddr, conn, users, rooms)
