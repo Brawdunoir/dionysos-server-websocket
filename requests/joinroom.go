@@ -63,7 +63,7 @@ func (r JoinRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *
 		owner.Conn.WriteJSON(ownerRequest)
 		owner.ConnMutex.Unlock()
 	} else { // Public room: Directly add the peer and notify everybody
-		addPeerAndNotify(requester, rooms, r.RoomID)
+		addPeerAndNotify(requester, rooms, room)
 	}
 
 	log.Println(remoteAddr, "JoinRoomRequest success")

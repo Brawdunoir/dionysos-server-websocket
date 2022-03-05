@@ -78,7 +78,7 @@ func handleAccept(r JoinRoomAnswerRequest, remoteAddr string, conn *websocket.Co
 	}
 
 	// Add new peer to the list and notify all members
-	err = addPeerAndNotify(requester, rooms, r.RoomID)
+	err = addPeerAndNotify(requester, rooms, room)
 	if err != nil {
 		return res.NewErrorResponse(err.Error())
 	}
@@ -106,11 +106,11 @@ func (r JoinRoomAnswerRequest) Code() CodeType {
 	return JOIN_ROOM_ANSWER
 }
 
-func addPeerAndNotify(requester *obj.User, rooms *obj.Rooms, roomID string) error {
+func addPeerAndNotify(requester *obj.User, rooms *obj.Rooms, room *obj.Room) error {
 	// Add the newcoming to the list of the peer before notifying
-	rooms.AddPeer(roomID, requester)
+	rooms.AddPeer(room.ID, requester)
 
-	peers, err := rooms.Peers(roomID)
+	peers, err := rooms.Peers(room.ID)
 	if err != nil {
 		log.Println(err)
 		return errors.New("error when retrieving peers in room")
@@ -119,7 +119,7 @@ func addPeerAndNotify(requester *obj.User, rooms *obj.Rooms, roomID string) erro
 	// Send updated peers list to all peers
 	for _, peer := range peers {
 		peer.ConnMutex.Lock()
-		peer.Conn.WriteJSON(res.NewResponse(res.NewPeersResponse{Peers: peers}))
+		peer.Conn.WriteJSON(res.NewResponse(res.NewPeersResponse{Peers: peers, OwnerID: room.OwnerID}))
 		peer.ConnMutex.Unlock()
 	}
 

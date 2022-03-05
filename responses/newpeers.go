@@ -7,7 +7,8 @@ import (
 )
 
 type NewPeersResponse struct {
-	Peers objects.PeersType `json:"peers"`
+	OwnerID string            `json:"ownerId"`
+	Peers   objects.PeersType `json:"peers"`
 }
 
 func (r NewPeersResponse) Code() CodeType {
