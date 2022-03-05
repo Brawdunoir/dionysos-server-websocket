@@ -48,6 +48,7 @@ func (r *Room) RemovePeer(u *User) {
 	log.Println("can't find", u, "in room", r)
 }
 
+// IsPeerPresent evaluates if a certain user is in the room
 func (r *Room) IsPeerPresent(u *User) bool {
 	for _, p := range r.Peers {
 		if p.ID == u.ID {
