@@ -1,6 +1,7 @@
 package requests
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 
@@ -72,4 +73,9 @@ func (r JoinRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *
 
 func (r JoinRoomRequest) Code() CodeType {
 	return JOIN_ROOM
+}
+
+func createJoinRoomRequest(payload json.RawMessage) (r JoinRoomRequest, err error) {
+	err = json.Unmarshal(payload, &r)
+	return
 }

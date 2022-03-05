@@ -1,6 +1,7 @@
 package requests
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 
@@ -34,4 +35,9 @@ func (r NewConnectionRequest) Handle(remoteAddr string, conn *websocket.Conn, us
 
 func (r NewConnectionRequest) Code() CodeType {
 	return NEW_CONNECTION
+}
+
+func createNewConnectionRequest(payload json.RawMessage) (r NewConnectionRequest, err error) {
+	err = json.Unmarshal(payload, &r)
+	return
 }

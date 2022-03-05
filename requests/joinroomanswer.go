@@ -1,6 +1,7 @@
 package requests
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -123,4 +124,9 @@ func addPeerAndNotify(requester *obj.User, rooms *obj.Rooms, roomID string) erro
 	}
 
 	return nil
+}
+
+func createJoinRoomAnswerRequest(payload json.RawMessage) (r JoinRoomAnswerRequest, err error) {
+	err = json.Unmarshal(payload, &r)
+	return
 }

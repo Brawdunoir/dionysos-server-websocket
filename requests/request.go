@@ -37,24 +37,18 @@ func (req Request) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Us
 
 	var request IRequest
 
-	// Would be better to change r type and unmarshall/handle this at the end of switch
+	// Would be better to use a map but it is kind of hard with current r.Handle method…
 	switch req.Code {
 	case NEW_CONNECTION:
-		var r NewConnectionRequest
-		err = json.Unmarshal(req.Payload, &r)
-		request = r
+		request, err = createNewConnectionRequest(req.Payload)
 	case NEW_ROOM:
-		var r NewRoomRequest
-		err = json.Unmarshal(req.Payload, &r)
-		request = r
+		request, err = createNewRoomRequest(req.Payload)
 	case JOIN_ROOM:
-		var r JoinRoomRequest
-		err = json.Unmarshal(req.Payload, &r)
-		request = r
+		request, err = createJoinRoomRequest(req.Payload)
 	case JOIN_ROOM_ANSWER:
-		var r JoinRoomAnswerRequest
-		err = json.Unmarshal(req.Payload, &r)
-		request = r
+		request, err = createJoinRoomAnswerRequest(req.Payload)
+	case NEW_MESSAGE:
+		request, err = createNewMessageRequest(req.Payload)
 	default:
 		return res.NewErrorResponse(fmt.Sprintf("unknown code: %s", req.Code))
 	}
