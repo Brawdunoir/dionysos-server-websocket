@@ -49,6 +49,8 @@ func (req Request) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Us
 		request, err = createJoinRoomAnswerRequest(req.Payload)
 	case NEW_MESSAGE:
 		request, err = createNewMessageRequest(req.Payload)
+	case CHANGE_USERNAME:
+		request, err = createChangeUsernameRequest(req.Payload)
 	default:
 		return res.NewErrorResponse(fmt.Sprintf("unknown code: %s", req.Code))
 	}

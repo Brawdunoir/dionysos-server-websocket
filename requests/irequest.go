@@ -20,6 +20,8 @@ const (
 	JOIN_ROOM_ANSWER = "JRA"
 	// Forward the message to all peers within the room. The messages are not keeped in the rooms.
 	NEW_MESSAGE = "NMS"
+	// Change the username
+	CHANGE_USERNAME = "CHU"
 )
 
 type IRequest interface {

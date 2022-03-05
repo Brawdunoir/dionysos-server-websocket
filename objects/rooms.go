@@ -34,7 +34,7 @@ func (rooms *Rooms) AddRoom(roomName string, owner *User, isPrivate bool) string
 	return room.ID
 }
 
-// AddPeer add a peer to an existing room
+// AddPeer add a peer to an existing room and sets roomID for the user
 func (rooms *Rooms) AddPeer(roomID string, u *User) (*Room, error) {
 	r, err := rooms.Room(roomID)
 	if err != nil {
@@ -45,6 +45,8 @@ func (rooms *Rooms) AddPeer(roomID string, u *User) (*Room, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	u.RoomID = roomID
 
 	return r, nil
 }

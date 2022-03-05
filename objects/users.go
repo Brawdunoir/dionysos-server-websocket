@@ -35,6 +35,19 @@ func (users *Users) AddUser(username, remoteAddr, salt string, conn *websocket.C
 	return user.ID
 }
 
+func (users *Users) ChangeUsername(userID, newUsername string) error {
+	user, err := users.UserByID(userID)
+	if err != nil {
+		return err
+	}
+
+	users.mu.Lock()
+	user.Name = newUsername
+	users.mu.Unlock()
+
+	return nil
+}
+
 // UserByID returns a user in a set of user given its ID
 // Return an error if the user is not in set
 func (users *Users) UserByID(userID string) (*User, error) {

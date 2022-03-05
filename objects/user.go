@@ -12,6 +12,7 @@ import (
 type User struct {
 	ID         string          `json:"id"`
 	Name       string          `json:"name"`
+	RoomID     string          `json:"-"`
 	Salt       string          `json:"-"`
 	RemoteAddr string          `json:"-"`
 	Conn       *websocket.Conn `json:"-"`

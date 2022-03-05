@@ -110,8 +110,21 @@ func (r JoinRoomAnswerRequest) Code() CodeType {
 
 func addPeerAndNotify(requester *obj.User, rooms *obj.Rooms, room *obj.Room) error {
 	// Add the newcoming to the list of the peer before notifying
-	rooms.AddPeer(room.ID, requester)
+	_, err := rooms.AddPeer(room.ID, requester)
+	if err != nil {
+		return err
+	}
 
+	err = notifyPeers(rooms, room)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Notify peers that the room peer list has changed
+func notifyPeers(rooms *obj.Rooms, room *obj.Room) error {
 	peers, err := rooms.Peers(room.ID)
 	if err != nil {
 		log.Println(err)
@@ -124,7 +137,6 @@ func addPeerAndNotify(requester *obj.User, rooms *obj.Rooms, room *obj.Room) err
 		peer.Conn.WriteJSON(res.NewResponse(res.NewPeersResponse{Peers: peers, OwnerID: room.OwnerID}))
 		peer.ConnMutex.Unlock()
 	}
-
 	return nil
 }
 
