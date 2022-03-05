@@ -32,6 +32,6 @@ func (r NewConnectionRequest) Handle(remoteAddr string, conn *websocket.Conn, us
 	return res.NewResponse(res.ConnectionResponse{Username: r.Username, UserID: userID})
 }
 
-func (r NewConnectionRequest) Code() string {
+func (r NewConnectionRequest) Code() CodeType {
 	return NEW_CONNECTION
 }

@@ -43,6 +43,6 @@ func (r NewRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *o
 	return res.NewResponse(res.NewRoomResponse{RoomID: roomID, RoomName: r.RoomName})
 }
 
-func (r NewRoomRequest) Code() string {
+func (r NewRoomRequest) Code() CodeType {
 	return NEW_ROOM
 }

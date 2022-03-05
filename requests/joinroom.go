@@ -70,6 +70,6 @@ func (r JoinRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *
 	return res.NewResponse(res.SuccessResponse{RequestCode: res.CodeType(r.Code())})
 }
 
-func (r JoinRoomRequest) Code() string {
+func (r JoinRoomRequest) Code() CodeType {
 	return JOIN_ROOM
 }

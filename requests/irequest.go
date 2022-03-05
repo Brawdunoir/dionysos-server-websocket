@@ -6,6 +6,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+type CodeType string
+
 // Requests codes
 const (
 	// Register a new user to the server and return the user's ID in the payload.
@@ -23,5 +25,5 @@ const (
 type IRequest interface {
 	Check() error
 	Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) responses.Response
-	Code() string
+	Code() CodeType
 }

@@ -101,7 +101,7 @@ func handleDeny(r JoinRoomAnswerRequest, remoteAddr string, conn *websocket.Conn
 	return res.NewResponse(res.SuccessResponse{RequestCode: JOIN_ROOM_ANSWER})
 }
 
-func (r JoinRoomAnswerRequest) Code() string {
+func (r JoinRoomAnswerRequest) Code() CodeType {
 	return JOIN_ROOM_ANSWER
 }
 

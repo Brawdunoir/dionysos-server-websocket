@@ -63,6 +63,6 @@ func (r NewMessageRequest) Handle(remoteAddr string, conn *websocket.Conn, users
 	return res.NewResponse(res.SuccessResponse{RequestCode: res.CodeType(r.Code())})
 }
 
-func (r NewMessageRequest) Code() string {
+func (r NewMessageRequest) Code() CodeType {
 	return NEW_MESSAGE
 }

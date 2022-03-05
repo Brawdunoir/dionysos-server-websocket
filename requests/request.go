@@ -10,7 +10,7 @@ import (
 )
 
 type Request struct {
-	Code    string          `json:"code"`
+	Code    CodeType        `json:"code"`
 	Payload json.RawMessage `json:"payload"`
 }
 
