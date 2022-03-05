@@ -68,7 +68,7 @@ func (r JoinRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *
 
 	log.Println(remoteAddr, "JoinRoomRequest success")
 
-	return res.NewResponse(res.SuccessResponse{RequestCode: res.CodeType(r.Code())})
+	return res.NewResponse(res.JoinRoomResponse{RoomName: room.Name, RoomID: room.ID, IsPrivate: room.IsPrivate})
 }
 
 func (r JoinRoomRequest) Code() CodeType {

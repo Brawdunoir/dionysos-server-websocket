@@ -12,6 +12,8 @@ const (
 	CONNECTION_SUCCESS = "COS"
 	// New room response
 	ROOM_CREATION_SUCCESSS = "RCS"
+	// Send basic room information while we ping the owner for confirmation or we add the peer for public room
+	JOIN_ROOM = "JRO"
 	// Ask room's owner to take a decision on wathever to accept or deny room access to an user (requester)
 	JOIN_ROOM_PENDING = "JRP"
 	// Request has been denied
