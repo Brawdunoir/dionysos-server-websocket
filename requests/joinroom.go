@@ -12,19 +12,21 @@ import (
 
 // JoinRoomRequest to server to ask permission for joining a room.
 // The server then forward this request to the room's owner.
-// RequesterID is set by the server and send to the room's owner.
 // This way, the owner answer Yes or No to the request
 // and join the RequesterID to his answer.
-type JoinRoomRequest res.JoinRoomPendingResponse
+type JoinRoomRequest struct {
+	RoomID string `json:"roomId"`
+	Salt   string `json:"salt"`
+}
 
 func (r JoinRoomRequest) Check() error {
 	var err error
 
-	if r.RequesterUsername == "" {
-		err = fmt.Errorf("%w; requesterUsername is empty", err)
-	}
 	if r.RoomID == "" {
 		err = fmt.Errorf("%w; roomId is empty", err)
+	}
+	if r.Salt == "" {
+		err = fmt.Errorf("%w; salt is empty", err)
 	}
 	// RequesterID can be empty since it is replaced by server
 
@@ -36,7 +38,7 @@ func (r JoinRoomRequest) Check() error {
 // Otherwise it just add the peer to the room.
 func (r JoinRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) res.Response {
 	// Fetch client, room and room owner info
-	requester, err := users.User(r.RequesterUsername, remoteAddr)
+	requester, err := users.User(r.Salt, remoteAddr)
 	if err != nil {
 		log.Println("can not retrieve requester info", err)
 		return res.NewErrorResponse("you are not connected")

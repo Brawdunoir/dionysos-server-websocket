@@ -11,8 +11,10 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// JoinRoomAnswerRequest indicates if a user (Requester) is
+// accepted or not in the room
 type JoinRoomAnswerRequest struct {
-	OwnerName   string `json:"ownerName"`
+	OwnerSalt   string `json:"ownerSalt"`
 	RoomID      string `json:"roomId"`
 	RequesterID string `json:"requesterId"`
 	Accepted    bool   `json:"accepted"`
@@ -21,8 +23,8 @@ type JoinRoomAnswerRequest struct {
 func (r JoinRoomAnswerRequest) Check() error {
 	var err error
 
-	if r.OwnerName == "" {
-		err = fmt.Errorf("%w; ownerName is empty", err)
+	if r.OwnerSalt == "" {
+		err = fmt.Errorf("%w; ownerSalt is empty", err)
 	}
 	if r.RoomID == "" {
 		err = fmt.Errorf("%w; roomId is empty", err)
@@ -60,7 +62,7 @@ func handleAccept(r JoinRoomAnswerRequest, remoteAddr string, conn *websocket.Co
 		return res.NewErrorResponse("you are not connected")
 	}
 
-	owner, err := users.User(r.OwnerName, remoteAddr)
+	owner, err := users.User(r.OwnerSalt, remoteAddr)
 	if err != nil {
 		log.Println("can not retrieve owner info", err)
 		return res.NewErrorResponse("room's owner is disconnected")
