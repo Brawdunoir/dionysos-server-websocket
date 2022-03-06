@@ -30,5 +30,5 @@ func generateUserID(remoteAddr, salt string) string {
 
 // newUser creates a new user
 func NewUser(username, remoteAddr, salt string, conn *websocket.Conn) *User {
-	return &User{ID: generateUserID(remoteAddr, salt), Salt: salt, Name: username, RemoteAddr: remoteAddr, ConnMutex: sync.Mutex{}, Conn: conn}
+	return &User{ID: generateUserID(remoteAddr, salt), RoomID: "", Salt: salt, Name: username, RemoteAddr: remoteAddr, ConnMutex: sync.Mutex{}, Conn: conn}
 }
