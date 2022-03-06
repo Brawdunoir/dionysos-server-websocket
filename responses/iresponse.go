@@ -22,6 +22,8 @@ const (
 	NEW_PEER = "NEP"
 	// Signal that a new message has been sent
 	NEW_MESSAGE = "NMS"
+	// Signal that the username has been changed internally
+	CHANGE_USERNAME = "CHU"
 )
 
 type IResponse interface {

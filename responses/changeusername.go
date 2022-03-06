@@ -9,7 +9,7 @@ type ChangeUsernameResponse struct {
 }
 
 func (r ChangeUsernameResponse) Code() CodeType {
-	return CONNECTION_SUCCESS
+	return CHANGE_USERNAME
 }
 
 func (r ChangeUsernameResponse) Marshal() ([]byte, error) {
