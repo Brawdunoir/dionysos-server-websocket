@@ -4,6 +4,8 @@ import (
 	"errors"
 	"log"
 	"sync"
+
+	"github.com/Brawdunoir/dionysos-server/utils"
 )
 
 type PeersType []*User
@@ -60,7 +62,7 @@ func (r *Room) IsPeerPresent(u *User) bool {
 
 // Generate a room ID based on a roomname and an ownerRemoteAddr
 func generateRoomID(roomName, ownerRemoteAddr string) string {
-	return generateStringHash(roomName + ownerRemoteAddr)
+	return utils.GenerateStringHash(roomName + ownerRemoteAddr)
 }
 
 // Creates a new room

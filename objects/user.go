@@ -3,6 +3,7 @@ package objects
 import (
 	"sync"
 
+	"github.com/Brawdunoir/dionysos-server/utils"
 	"github.com/gorilla/websocket"
 )
 
@@ -25,7 +26,7 @@ func (u *User) String() string {
 
 // generateUserID generates an user ID based on a remote address and a salt send by the client
 func generateUserID(remoteAddr, salt string) string {
-	return generateStringHash(remoteAddr + salt)
+	return utils.GenerateStringHash(remoteAddr + salt)
 }
 
 // newUser creates a new user
