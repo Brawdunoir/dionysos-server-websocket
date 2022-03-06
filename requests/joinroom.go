@@ -8,6 +8,7 @@ import (
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 )
 
 // JoinRoomRequest to server to ask permission for joining a room.
@@ -36,9 +37,9 @@ func (r JoinRoomRequest) Check() error {
 // Handles a join room demand from a client by contacting
 // the room's owner if the room is private.
 // Otherwise it just add the peer to the room.
-func (r JoinRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) res.Response {
+func (r JoinRoomRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
 	// Fetch client, room and room owner info
-	requester, err := users.User(r.Salt, remoteAddr)
+	requester, err := users.User(r.Salt, publicAddr)
 	if err != nil {
 		log.Println("can not retrieve requester info", err)
 		return res.NewErrorResponse("you are not connected")
@@ -68,7 +69,7 @@ func (r JoinRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *
 		addPeerAndNotify(requester, rooms, room)
 	}
 
-	log.Println(remoteAddr, "JoinRoomRequest success")
+	log.Println(proxyAddr, "JoinRoomRequest success")
 
 	return res.NewResponse(res.JoinRoomResponse{RoomName: room.Name, RoomID: room.ID, IsPrivate: room.IsPrivate})
 }

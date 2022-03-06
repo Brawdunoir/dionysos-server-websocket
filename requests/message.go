@@ -9,6 +9,7 @@ import (
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 )
 
 // NewMessageRequest send a message to all peers in the room.
@@ -37,9 +38,9 @@ func (r NewMessageRequest) Check() error {
 }
 
 // Handles a new message from a client by forwarding it to all peers.
-func (r NewMessageRequest) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) res.Response {
+func (r NewMessageRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
 	// Fetch sender and room info
-	sender, err := users.User(r.Salt, remoteAddr)
+	sender, err := users.User(r.Salt, publicAddr)
 	if err != nil {
 		return res.NewErrorResponse(err.Error())
 	}
@@ -66,7 +67,7 @@ func (r NewMessageRequest) Handle(remoteAddr string, conn *websocket.Conn, users
 		peer.ConnMutex.Unlock()
 	}
 
-	log.Println(remoteAddr, "NewMessageRequest success")
+	log.Println(proxyAddr, "NewMessageRequest success")
 
 	return res.NewResponse(res.SuccessResponse{RequestCode: res.CodeType(r.Code())})
 }

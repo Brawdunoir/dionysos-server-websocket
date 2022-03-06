@@ -8,6 +8,7 @@ import (
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 )
 
 // NewConnectionRequest is first request to the server.
@@ -34,10 +35,10 @@ func (r NewConnectionRequest) Check() error {
 }
 
 // Handles a new connection from a client.
-func (r NewConnectionRequest) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) res.Response {
-	userID := users.AddUser(r.Username, remoteAddr, r.Salt, conn)
+func (r NewConnectionRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
+	userID := users.AddUser(r.Username, publicAddr, r.Salt, conn)
 
-	log.Println(remoteAddr, "NewConnectionRequest success")
+	log.Println(proxyAddr, "NewConnectionRequest success")
 
 	return res.NewResponse(res.ConnectionResponse{Username: r.Username, UserID: userID})
 }

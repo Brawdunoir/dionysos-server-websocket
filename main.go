@@ -26,6 +26,7 @@ func main() {
 	defer logger.Sync()
 	slogger = logger.Sugar()
 
+	// Start listening for websocket clients on port 8080
 	slogger.Info("starting…")
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", socketHandler)
@@ -60,7 +61,7 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		response := req.Handle(publicAddr, conn, users, rooms)
+		response := req.Handle(publicAddr, r.RemoteAddr, conn, users, rooms, slogger)
 
 		conn.WriteJSON(response)
 	}

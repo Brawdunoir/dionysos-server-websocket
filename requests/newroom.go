@@ -8,6 +8,7 @@ import (
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 )
 
 // NewRoomRequest creates a new room within the server and
@@ -32,16 +33,16 @@ func (r NewRoomRequest) Check() error {
 }
 
 // Handles a new room demand from a client.
-func (r NewRoomRequest) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) res.Response {
+func (r NewRoomRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
 	// Retrieve owner info
-	owner, err := users.User(r.Salt, remoteAddr)
+	owner, err := users.User(r.Salt, publicAddr)
 	if err != nil {
 		return res.NewErrorResponse(fmt.Sprintf("%w, cannot retrieve user info from database, has he logged in first ?", err))
 	}
 
 	roomID := rooms.AddRoom(r.RoomName, owner, r.IsPrivate)
 
-	log.Println(remoteAddr, "NewRoomRequest success")
+	log.Println(proxyAddr, "NewRoomRequest success")
 
 	return res.NewResponse(res.NewRoomResponse{RoomID: roomID, RoomName: r.RoomName})
 }

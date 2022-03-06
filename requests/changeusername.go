@@ -8,6 +8,7 @@ import (
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 )
 
 // ChangeUsernameRequest allows a user to change its username.
@@ -31,9 +32,9 @@ func (r ChangeUsernameRequest) Check() error {
 }
 
 // Handles a username changement request from a client.
-func (r ChangeUsernameRequest) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) res.Response {
+func (r ChangeUsernameRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
 	// Fetch user an rename
-	user, err := users.User(r.Salt, remoteAddr)
+	user, err := users.User(r.Salt, publicAddr)
 	if err != nil {
 		return res.NewErrorResponse(err.Error())
 	}
@@ -53,7 +54,7 @@ func (r ChangeUsernameRequest) Handle(remoteAddr string, conn *websocket.Conn, u
 		notifyPeers(rooms, room)
 	}
 
-	log.Println(remoteAddr, "ChangeUsernameRequest success")
+	log.Println(proxyAddr, "ChangeUsernameRequest success")
 
 	return res.NewResponse(res.ChangeUsernameResponse{Username: r.NewUsername})
 }

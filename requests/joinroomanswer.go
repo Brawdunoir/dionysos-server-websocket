@@ -9,6 +9,7 @@ import (
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 )
 
 // JoinRoomAnswerRequest indicates if a user (Requester) is
@@ -41,20 +42,20 @@ func (r JoinRoomAnswerRequest) Check() error {
 // to every other peer in the room the newcoming, in addition to
 // send the complete list of peer to the requester.
 // In the second case, signal to the requester that his request had been denied
-func (r JoinRoomAnswerRequest) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) (response res.Response) {
+func (r JoinRoomAnswerRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response) {
 
 	if r.Accepted {
-		response = handleAccept(r, remoteAddr, conn, users, rooms)
+		response = handleAccept(r, publicAddr, proxyAddr, conn, users, rooms, logger)
 	} else {
-		response = handleDeny(r, remoteAddr, conn, users, rooms)
+		response = handleDeny(r, publicAddr, proxyAddr, conn, users, rooms, logger)
 	}
 
-	log.Println(remoteAddr, "JoinRoomAnswerRequest success")
+	log.Println(proxyAddr, "JoinRoomAnswerRequest success")
 
 	return
 }
 
-func handleAccept(r JoinRoomAnswerRequest, remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) res.Response {
+func handleAccept(r JoinRoomAnswerRequest, publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
 	// Fetch requester, owner and room info
 	requester, err := users.UserByID(r.RequesterID)
 	if err != nil {
@@ -62,7 +63,7 @@ func handleAccept(r JoinRoomAnswerRequest, remoteAddr string, conn *websocket.Co
 		return res.NewErrorResponse("you are not connected")
 	}
 
-	owner, err := users.User(r.OwnerSalt, remoteAddr)
+	owner, err := users.User(r.OwnerSalt, publicAddr)
 	if err != nil {
 		log.Println("can not retrieve owner info", err)
 		return res.NewErrorResponse("room's owner is disconnected")
@@ -88,7 +89,7 @@ func handleAccept(r JoinRoomAnswerRequest, remoteAddr string, conn *websocket.Co
 	return res.NewResponse(res.SuccessResponse{RequestCode: JOIN_ROOM_ANSWER})
 }
 
-func handleDeny(r JoinRoomAnswerRequest, remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) res.Response {
+func handleDeny(r JoinRoomAnswerRequest, publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
 	requester, err := users.UserByID(r.RequesterID)
 	if err != nil {
 		log.Println(err)

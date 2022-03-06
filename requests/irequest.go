@@ -4,6 +4,7 @@ import (
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	responses "github.com/Brawdunoir/dionysos-server/responses"
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 )
 
 type CodeType string
@@ -26,6 +27,6 @@ const (
 
 type IRequest interface {
 	Check() error
-	Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) responses.Response
+	Handle(publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) responses.Response
 	Code() CodeType
 }

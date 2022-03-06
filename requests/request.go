@@ -7,6 +7,7 @@ import (
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 )
 
 type Request struct {
@@ -29,7 +30,7 @@ func (r Request) Check() error {
 
 // Handle creates a new request corresponding to the Code field
 // and calls the Handle function on this new request
-func (req Request) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms) res.Response {
+func (req Request) Handle(publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
 	err := req.Check()
 	if err != nil {
 		return res.NewErrorResponse(err.Error())
@@ -63,5 +64,5 @@ func (req Request) Handle(remoteAddr string, conn *websocket.Conn, users *obj.Us
 		return res.NewErrorResponse(err.Error())
 	}
 
-	return request.Handle(remoteAddr, conn, users, rooms)
+	return request.Handle(publicAddr, proxyAddr, conn, users, rooms, logger)
 }

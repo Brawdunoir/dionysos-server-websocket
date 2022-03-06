@@ -22,12 +22,12 @@ func NewUsers() *Users {
 // AddUser creates a new user and add it to the set of users
 // If the user already exists, do nothing
 // Returns user ID
-func (users *Users) AddUser(username, remoteAddr, salt string, conn *websocket.Conn) string {
-	if u, exists := users.User(username, remoteAddr); exists == nil {
+func (users *Users) AddUser(username, publicAddr, salt string, conn *websocket.Conn) string {
+	if u, exists := users.User(username, publicAddr); exists == nil {
 		return u.ID
 	}
 
-	user := NewUser(username, remoteAddr, salt, conn)
+	user := NewUser(username, publicAddr, salt, conn)
 
 	users.mu.Lock()
 	users.members[user.ID] = user
@@ -64,10 +64,10 @@ func (users *Users) UserByID(userID string) (*User, error) {
 	}
 }
 
-// User returns a user in a set of user given its salt and remote address
+// User returns a user in a set of user given its salt and public address
 // Return an error if the user is not in set
-func (users *Users) User(salt, remoteAddr string) (*User, error) {
-	userID := generateUserID(remoteAddr, salt)
+func (users *Users) User(salt, publicAddr string) (*User, error) {
+	userID := generateUserID(publicAddr, salt)
 
 	return users.UserByID(userID)
 }

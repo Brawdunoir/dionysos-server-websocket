@@ -60,12 +60,12 @@ func (r *Room) IsPeerPresent(u *User) bool {
 	return false
 }
 
-// Generate a room ID based on a roomname and an ownerRemoteAddr
-func generateRoomID(roomName, ownerRemoteAddr string) string {
-	return utils.GenerateStringHash(roomName + ownerRemoteAddr)
+// Generate a room ID based on a roomname and an ownerPublicAddr
+func generateRoomID(roomName, ownerPublicAddr string) string {
+	return utils.GenerateStringHash(roomName + ownerPublicAddr)
 }
 
 // Creates a new room
 func NewRoom(roomName string, owner *User, isPrivate bool) *Room {
-	return &Room{ID: generateRoomID(roomName, owner.RemoteAddr), Name: roomName, OwnerID: owner.ID, Peers: PeersType{owner}, IsPrivate: isPrivate}
+	return &Room{ID: generateRoomID(roomName, owner.PublicIP), Name: roomName, OwnerID: owner.ID, Peers: PeersType{owner}, IsPrivate: isPrivate}
 }
