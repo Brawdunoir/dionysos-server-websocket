@@ -9,50 +9,59 @@ import (
 	"github.com/Brawdunoir/dionysos-server/utils"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 )
 
 var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }} // use default options
 var users = objects.NewUsers()                                                             // list of users connected
 var rooms = objects.NewRooms()                                                             // list of rooms registered
+var slogger *zap.SugaredLogger
 
 func main() {
-	log.Println("Starting…")
+	// Start the logger
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		log.Fatalf("can't initialize zap logger: %v", err)
+	}
+	defer logger.Sync()
+	slogger = logger.Sugar()
+
+	slogger.Info("starting…")
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", socketHandler)
-	log.Println("Listening…")
+	slogger.Info("listening…")
 	http.ListenAndServe(":8080", router)
 }
 
 func socketHandler(w http.ResponseWriter, r *http.Request) {
+	// Grab public IP of client
+	publicAddr, err := utils.GetIPAdress(r)
+	if err != nil {
+		slogger.Errorw("cannot read a valid public ip from http header", "remoteAddr", r.RemoteAddr)
+		return
+	}
+
 	// Upgrade our raw HTTP connection to a websocket based one
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(r.RemoteAddr, "Error during connection upgradation:", err)
+		slogger.Errorw("cannot upgrade connection", "remoteAddr", r.RemoteAddr)
 		return
 	}
 	defer conn.Close()
 
-	log.Println(r.RemoteAddr, "Connected")
-
-	publicAddr, err := utils.GetIPAdress(r)
-	if err != nil {
-		log.Println(r.RemoteAddr, "Error, cannot find public IP address in header")
-		return
-	}
+	slogger.Infow("new peer connected", "remoteAddr", r.RemoteAddr)
 
 	for {
 		var req requests.Request
 
 		err := conn.ReadJSON(&req)
 		if err != nil {
-			log.Println("Error during JSON reading:", err)
+			slogger.Errorw("cannot read json message", "remoteAddr", r.RemoteAddr)
 			break
 		}
 
 		response := req.Handle(publicAddr, conn, users, rooms)
-		if err != nil {
-			log.Println("wrong request from client:", err)
-		}
+
 		conn.WriteJSON(response)
 	}
 }
