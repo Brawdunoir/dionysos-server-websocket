@@ -4,6 +4,8 @@ import (
 	"errors"
 	"log"
 	"sync"
+
+	"github.com/Brawdunoir/dionysos-server/constants"
 )
 
 type Rooms struct {
@@ -70,7 +72,7 @@ func (rooms *Rooms) Room(roomID string) (*Room, error) {
 
 	if !ok {
 		log.Println("access to unknown room, ID: " + roomID)
-		return nil, errors.New(ROOM_NIL)
+		return nil, errors.New(constants.ERR_ROOM_NIL)
 	}
 	return r, nil
 }

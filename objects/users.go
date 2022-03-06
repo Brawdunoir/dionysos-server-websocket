@@ -5,6 +5,7 @@ import (
 	"log"
 	"sync"
 
+	"github.com/Brawdunoir/dionysos-server/constants"
 	"github.com/gorilla/websocket"
 )
 
@@ -57,7 +58,7 @@ func (users *Users) UserByID(userID string) (*User, error) {
 
 	if !exists {
 		log.Println("access to unknown user, ID: " + userID)
-		return nil, errors.New(USER_NIL)
+		return nil, errors.New(constants.ERR_USER_NIL)
 	} else {
 		return u, nil
 	}

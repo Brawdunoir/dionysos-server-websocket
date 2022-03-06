@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/Brawdunoir/dionysos-server/constants"
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
 	"github.com/gorilla/websocket"
@@ -50,7 +51,7 @@ func (r NewMessageRequest) Handle(remoteAddr string, conn *websocket.Conn, users
 
 	// Check wethever the sender is in the room
 	if !room.IsPeerPresent(sender) {
-		return res.NewErrorResponse(obj.NO_PERM)
+		return res.NewErrorResponse(constants.ERR_NO_PERM)
 	}
 
 	// Gather all peers and send the new message to all peers
