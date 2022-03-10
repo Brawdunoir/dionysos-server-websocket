@@ -2,7 +2,6 @@ package objects
 
 import (
 	"errors"
-	"log"
 	"sync"
 
 	"github.com/Brawdunoir/dionysos-server/constants"
@@ -25,8 +24,7 @@ func NewRooms() *Rooms {
 func (rooms *Rooms) AddRoom(roomName string, owner *User, isPrivate bool, logger *zap.SugaredLogger) string {
 	room := NewRoom(roomName, owner, isPrivate)
 
-	_, exists := rooms.secureRoom(room.ID)
-	if exists {
+	if _, exists := rooms.secureRoom(room.ID); exists {
 		logger.Debugw("add room, room already exists", "room", room.ID, "roomname", roomName, "owner", owner.ID, "ownername", owner.Name)
 		return room.ID
 	}
@@ -35,6 +33,7 @@ func (rooms *Rooms) AddRoom(roomName string, owner *User, isPrivate bool, logger
 	rooms.saloons[room.ID] = room
 	rooms.mu.Unlock()
 
+	logger.Debugw("add room", "room", room.ID, "roomname", roomName, "owner", owner.ID, "ownername", owner.Name)
 	return room.ID
 }
 

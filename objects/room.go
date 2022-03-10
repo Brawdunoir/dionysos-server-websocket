@@ -2,7 +2,6 @@ package objects
 
 import (
 	"errors"
-	"log"
 	"sync"
 
 	"github.com/Brawdunoir/dionysos-server/utils"
@@ -27,14 +26,16 @@ func (r *Room) String() string {
 
 // AddPeer safely adds a peer to a room
 func (r *Room) AddPeer(u *User, logger *zap.SugaredLogger) error {
-	
+
 	if ok := r.IsPeerPresent(u, logger); ok {
+		logger.Errorw("add peer failed, user is already in the room", "user", u.ID, "username", u.Name, "room", r.ID, "roomname", r.Name)
 		return errors.New("peer already exists in room")
 	}
 
 	r.mu.Lock()
 	r.Peers = append(r.Peers, u)
 	r.mu.Unlock()
+	logger.Debugw("add peer", "user", u.ID, "username", u.Name, "room", r.ID, "roomname", r.Name)
 	return nil
 }
 
@@ -45,11 +46,11 @@ func (r *Room) RemovePeer(u *User, logger *zap.SugaredLogger) {
 			r.mu.Lock()
 			r.Peers = append(r.Peers[:i], r.Peers[i+1:]...)
 			r.mu.Unlock()
-			log.Println("user", u, "removed from the room", r)
+			logger.Debugw("remove peer from room", "user", u.ID, "username", u.Name, "room", r.ID, "roomname", r.Name)
 			return
 		}
 	}
-	log.Println("can't find", u, "in room", r)
+	logger.Debugw("remove peer failed, the user cannot be found", "user", u.ID, "username", u.Name, "room", r.ID, "roomname", r.Name)
 }
 
 // IsPeerPresent evaluates if a certain user is in the room
