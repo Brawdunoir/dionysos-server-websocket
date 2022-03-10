@@ -25,8 +25,9 @@ func NewRooms() *Rooms {
 func (rooms *Rooms) AddRoom(roomName string, owner *User, isPrivate bool, logger *zap.SugaredLogger) string {
 	room := NewRoom(roomName, owner, isPrivate)
 
-	_, exists := rooms.Room(room.ID, logger)
-	if exists == nil {
+	_, exists := rooms.secureRoom(room.ID)
+	if exists {
+		logger.Debugw("add room, room already exists", "room", room.ID, "roomname", roomName, "owner", owner.ID, "ownername", owner.Name)
 		return room.ID
 	}
 
@@ -67,13 +68,18 @@ func (rooms *Rooms) Peers(roomID string, logger *zap.SugaredLogger) (PeersType, 
 // Rooms returns a room in a set of room given its ID
 // Return an error if the room is not in set
 func (rooms *Rooms) Room(roomID string, logger *zap.SugaredLogger) (*Room, error) {
-	rooms.mu.RLock()
-	r, ok := rooms.saloons[roomID]
-	rooms.mu.RUnlock()
+	r, ok := rooms.secureRoom(roomID)
 
 	if !ok {
-		log.Println("access to unknown room, ID: " + roomID)
+		logger.Debugw("room does not exist", "room", roomID)
 		return nil, errors.New(constants.ERR_ROOM_NIL)
 	}
 	return r, nil
+}
+
+func (rooms *Rooms) secureRoom(roomID string) (r *Room, ok bool) {
+	rooms.mu.RLock()
+	r, ok = rooms.saloons[roomID]
+	rooms.mu.RUnlock()
+	return
 }
