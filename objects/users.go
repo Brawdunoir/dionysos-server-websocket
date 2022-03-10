@@ -7,6 +7,7 @@ import (
 
 	"github.com/Brawdunoir/dionysos-server/constants"
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 )
 
 type Users struct {
@@ -22,8 +23,8 @@ func NewUsers() *Users {
 // AddUser creates a new user and add it to the set of users
 // If the user already exists, do nothing
 // Returns user ID
-func (users *Users) AddUser(username, publicAddr, salt string, conn *websocket.Conn) string {
-	if u, exists := users.User(username, publicAddr); exists == nil {
+func (users *Users) AddUser(username, publicAddr, salt string, conn *websocket.Conn, logger *zap.SugaredLogger) string {
+	if u, exists := users.User(username, publicAddr, logger); exists == nil {
 		return u.ID
 	}
 
@@ -36,8 +37,8 @@ func (users *Users) AddUser(username, publicAddr, salt string, conn *websocket.C
 	return user.ID
 }
 
-func (users *Users) ChangeUsername(userID, newUsername string) error {
-	user, err := users.UserByID(userID)
+func (users *Users) ChangeUsername(userID, newUsername string, logger *zap.SugaredLogger) error {
+	user, err := users.UserByID(userID, logger)
 	if err != nil {
 		return err
 	}
@@ -51,7 +52,7 @@ func (users *Users) ChangeUsername(userID, newUsername string) error {
 
 // UserByID returns a user in a set of user given its ID
 // Return an error if the user is not in set
-func (users *Users) UserByID(userID string) (*User, error) {
+func (users *Users) UserByID(userID string, logger *zap.SugaredLogger) (*User, error) {
 	users.mu.RLock()
 	u, exists := users.members[userID]
 	users.mu.RUnlock()
@@ -66,8 +67,8 @@ func (users *Users) UserByID(userID string) (*User, error) {
 
 // User returns a user in a set of user given its salt and public address
 // Return an error if the user is not in set
-func (users *Users) User(salt, publicAddr string) (*User, error) {
+func (users *Users) User(salt, publicAddr string, logger *zap.SugaredLogger) (*User, error) {
 	userID := generateUserID(publicAddr, salt)
 
-	return users.UserByID(userID)
+	return users.UserByID(userID, logger)
 }

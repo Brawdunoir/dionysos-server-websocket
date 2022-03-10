@@ -36,7 +36,7 @@ func (r NewConnectionRequest) Check() error {
 
 // Handles a new connection from a client.
 func (r NewConnectionRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
-	userID := users.AddUser(r.Username, publicAddr, r.Salt, conn)
+	userID := users.AddUser(r.Username, publicAddr, r.Salt, conn, logger)
 
 	log.Println(proxyAddr, "NewConnectionRequest success")
 

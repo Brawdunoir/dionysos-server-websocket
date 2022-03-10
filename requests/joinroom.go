@@ -39,24 +39,24 @@ func (r JoinRoomRequest) Check() error {
 // Otherwise it just add the peer to the room.
 func (r JoinRoomRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
 	// Fetch client, room and room owner info
-	requester, err := users.User(r.Salt, publicAddr)
+	requester, err := users.User(r.Salt, publicAddr, logger)
 	if err != nil {
 		log.Println("can not retrieve requester info", err)
 		return res.NewErrorResponse("you are not connected")
 	}
 
-	room, err := rooms.Room(r.RoomID)
+	room, err := rooms.Room(r.RoomID, logger)
 	if err != nil {
 		log.Println(err)
 		return res.NewErrorResponse("the room does not exist or has been deleted")
 	}
-	owner, err := users.UserByID(room.OwnerID)
+	owner, err := users.UserByID(room.OwnerID, logger)
 	if err != nil {
 		log.Println("can not retrieve owner info", err)
 		return res.NewErrorResponse("room's owner is disconnected")
 	}
 
-	if room.IsPeerPresent(requester) {
+	if room.IsPeerPresent(requester, logger) {
 		return res.NewErrorResponse("you seem to be already in room")
 	}
 
@@ -66,7 +66,7 @@ func (r JoinRoomRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Co
 		owner.Conn.WriteJSON(ownerRequest)
 		owner.ConnMutex.Unlock()
 	} else { // Public room: Directly add the peer and notify everybody
-		addPeerAndNotify(requester, rooms, room)
+		addPeerAndNotify(requester, rooms, room, logger)
 	}
 
 	log.Println(proxyAddr, "JoinRoomRequest success")

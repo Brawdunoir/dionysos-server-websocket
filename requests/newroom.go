@@ -35,12 +35,12 @@ func (r NewRoomRequest) Check() error {
 // Handles a new room demand from a client.
 func (r NewRoomRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
 	// Retrieve owner info
-	owner, err := users.User(r.Salt, publicAddr)
+	owner, err := users.User(r.Salt, publicAddr, logger)
 	if err != nil {
 		return res.NewErrorResponse(fmt.Sprintf("%w, cannot retrieve user info from database, has he logged in first ?", err))
 	}
 
-	roomID := rooms.AddRoom(r.RoomName, owner, r.IsPrivate)
+	roomID := rooms.AddRoom(r.RoomName, owner, r.IsPrivate, logger)
 
 	log.Println(proxyAddr, "NewRoomRequest success")
 

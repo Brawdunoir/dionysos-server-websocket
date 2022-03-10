@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/Brawdunoir/dionysos-server/utils"
+	"go.uber.org/zap"
 )
 
 type PeersType []*User
@@ -25,8 +26,9 @@ func (r *Room) String() string {
 }
 
 // AddPeer safely adds a peer to a room
-func (r *Room) AddPeer(u *User) error {
-	if ok := r.IsPeerPresent(u); ok {
+func (r *Room) AddPeer(u *User, logger *zap.SugaredLogger) error {
+	
+	if ok := r.IsPeerPresent(u, logger); ok {
 		return errors.New("peer already exists in room")
 	}
 
@@ -37,7 +39,7 @@ func (r *Room) AddPeer(u *User) error {
 }
 
 // RemovePeer safely removes a peer from a room
-func (r *Room) RemovePeer(u *User) {
+func (r *Room) RemovePeer(u *User, logger *zap.SugaredLogger) {
 	for i, p := range r.Peers {
 		if p.ID == u.ID {
 			r.mu.Lock()
@@ -51,7 +53,7 @@ func (r *Room) RemovePeer(u *User) {
 }
 
 // IsPeerPresent evaluates if a certain user is in the room
-func (r *Room) IsPeerPresent(u *User) bool {
+func (r *Room) IsPeerPresent(u *User, logger *zap.SugaredLogger) bool {
 	for _, p := range r.Peers {
 		if p.ID == u.ID {
 			return true

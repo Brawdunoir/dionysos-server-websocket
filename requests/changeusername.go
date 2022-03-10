@@ -34,24 +34,24 @@ func (r ChangeUsernameRequest) Check() error {
 // Handles a username changement request from a client.
 func (r ChangeUsernameRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
 	// Fetch user an rename
-	user, err := users.User(r.Salt, publicAddr)
+	user, err := users.User(r.Salt, publicAddr, logger)
 	if err != nil {
 		return res.NewErrorResponse(err.Error())
 	}
 
-	err = users.ChangeUsername(user.ID, r.NewUsername)
+	err = users.ChangeUsername(user.ID, r.NewUsername, logger)
 	if err != nil {
 		return res.NewErrorResponse(err.Error())
 	}
 
 	// If connected to a room, notify peers of the changement
 	if user.RoomID != "" {
-		room, err := rooms.Room(user.RoomID)
+		room, err := rooms.Room(user.RoomID, logger)
 		if err != nil {
 			return res.NewErrorResponse(err.Error())
 		}
 
-		notifyPeers(rooms, room)
+		notifyPeers(rooms, room, logger)
 	}
 
 	log.Println(proxyAddr, "ChangeUsernameRequest success")

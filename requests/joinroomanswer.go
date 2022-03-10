@@ -57,19 +57,19 @@ func (r JoinRoomAnswerRequest) Handle(publicAddr, proxyAddr string, conn *websoc
 
 func handleAccept(r JoinRoomAnswerRequest, publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
 	// Fetch requester, owner and room info
-	requester, err := users.UserByID(r.RequesterID)
+	requester, err := users.UserByID(r.RequesterID, logger)
 	if err != nil {
 		log.Println("can not retrieve requester info", err)
 		return res.NewErrorResponse("you are not connected")
 	}
 
-	owner, err := users.User(r.OwnerSalt, publicAddr)
+	owner, err := users.User(r.OwnerSalt, publicAddr, logger)
 	if err != nil {
 		log.Println("can not retrieve owner info", err)
 		return res.NewErrorResponse("room's owner is disconnected")
 	}
 
-	room, err := rooms.Room(r.RoomID)
+	room, err := rooms.Room(r.RoomID, logger)
 	if err != nil {
 		log.Println(err)
 		return res.NewErrorResponse("the room does not exist or has been deleted")
@@ -81,7 +81,7 @@ func handleAccept(r JoinRoomAnswerRequest, publicAddr, proxyAddr string, conn *w
 	}
 
 	// Add new peer to the list and notify all members
-	err = addPeerAndNotify(requester, rooms, room)
+	err = addPeerAndNotify(requester, rooms, room, logger)
 	if err != nil {
 		return res.NewErrorResponse(err.Error())
 	}
@@ -90,7 +90,7 @@ func handleAccept(r JoinRoomAnswerRequest, publicAddr, proxyAddr string, conn *w
 }
 
 func handleDeny(r JoinRoomAnswerRequest, publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
-	requester, err := users.UserByID(r.RequesterID)
+	requester, err := users.UserByID(r.RequesterID, logger)
 	if err != nil {
 		log.Println(err)
 		return res.NewErrorResponse("you are not connected")
@@ -109,14 +109,14 @@ func (r JoinRoomAnswerRequest) Code() CodeType {
 	return JOIN_ROOM_ANSWER
 }
 
-func addPeerAndNotify(requester *obj.User, rooms *obj.Rooms, room *obj.Room) error {
+func addPeerAndNotify(requester *obj.User, rooms *obj.Rooms, room *obj.Room, logger *zap.SugaredLogger) error {
 	// Add the newcoming to the list of the peer before notifying
-	_, err := rooms.AddPeer(room.ID, requester)
+	_, err := rooms.AddPeer(room.ID, requester, logger)
 	if err != nil {
 		return err
 	}
 
-	err = notifyPeers(rooms, room)
+	err = notifyPeers(rooms, room, logger)
 	if err != nil {
 		return err
 	}
@@ -125,8 +125,8 @@ func addPeerAndNotify(requester *obj.User, rooms *obj.Rooms, room *obj.Room) err
 }
 
 // Notify peers that the room peer list has changed
-func notifyPeers(rooms *obj.Rooms, room *obj.Room) error {
-	peers, err := rooms.Peers(room.ID)
+func notifyPeers(rooms *obj.Rooms, room *obj.Room, logger *zap.SugaredLogger) error {
+	peers, err := rooms.Peers(room.ID, logger)
 	if err != nil {
 		log.Println(err)
 		return errors.New("error when retrieving peers in room")

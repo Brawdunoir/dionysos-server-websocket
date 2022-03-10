@@ -40,23 +40,23 @@ func (r NewMessageRequest) Check() error {
 // Handles a new message from a client by forwarding it to all peers.
 func (r NewMessageRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
 	// Fetch sender and room info
-	sender, err := users.User(r.Salt, publicAddr)
+	sender, err := users.User(r.Salt, publicAddr, logger)
 	if err != nil {
 		return res.NewErrorResponse(err.Error())
 	}
 
-	room, err := rooms.Room(r.RoomID)
+	room, err := rooms.Room(r.RoomID, logger)
 	if err != nil {
 		return res.NewErrorResponse(err.Error())
 	}
 
 	// Check wethever the sender is in the room
-	if !room.IsPeerPresent(sender) {
+	if !room.IsPeerPresent(sender, logger) {
 		return res.NewErrorResponse(constants.ERR_NO_PERM)
 	}
 
 	// Gather all peers and send the new message to all peers
-	peers, err := rooms.Peers(r.RoomID)
+	peers, err := rooms.Peers(r.RoomID, logger)
 	if err != nil {
 		return res.NewErrorResponse(err.Error())
 	}

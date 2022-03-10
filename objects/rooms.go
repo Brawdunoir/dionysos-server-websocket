@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/Brawdunoir/dionysos-server/constants"
+	"go.uber.org/zap"
 )
 
 type Rooms struct {
@@ -21,10 +22,10 @@ func NewRooms() *Rooms {
 // AddRoom creates a new room and add it to the set of rooms
 // If the room already exists, do nothing
 // Returns the roomID of the existing or new created room
-func (rooms *Rooms) AddRoom(roomName string, owner *User, isPrivate bool) string {
+func (rooms *Rooms) AddRoom(roomName string, owner *User, isPrivate bool, logger *zap.SugaredLogger) string {
 	room := NewRoom(roomName, owner, isPrivate)
 
-	_, exists := rooms.Room(room.ID)
+	_, exists := rooms.Room(room.ID, logger)
 	if exists == nil {
 		return room.ID
 	}
@@ -37,13 +38,13 @@ func (rooms *Rooms) AddRoom(roomName string, owner *User, isPrivate bool) string
 }
 
 // AddPeer add a peer to an existing room and sets roomID for the user
-func (rooms *Rooms) AddPeer(roomID string, u *User) (*Room, error) {
-	r, err := rooms.Room(roomID)
+func (rooms *Rooms) AddPeer(roomID string, u *User, logger *zap.SugaredLogger) (*Room, error) {
+	r, err := rooms.Room(roomID, logger)
 	if err != nil {
 		return nil, err
 	}
 
-	err = r.AddPeer(u)
+	err = r.AddPeer(u, logger)
 	if err != nil {
 		return nil, err
 	}
@@ -54,8 +55,8 @@ func (rooms *Rooms) AddPeer(roomID string, u *User) (*Room, error) {
 }
 
 // Peers return a user slice of connected peers in a room
-func (rooms *Rooms) Peers(roomID string) (PeersType, error) {
-	r, err := rooms.Room(roomID)
+func (rooms *Rooms) Peers(roomID string, logger *zap.SugaredLogger) (PeersType, error) {
+	r, err := rooms.Room(roomID, logger)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +66,7 @@ func (rooms *Rooms) Peers(roomID string) (PeersType, error) {
 
 // Rooms returns a room in a set of room given its ID
 // Return an error if the room is not in set
-func (rooms *Rooms) Room(roomID string) (*Room, error) {
+func (rooms *Rooms) Room(roomID string, logger *zap.SugaredLogger) (*Room, error) {
 	rooms.mu.RLock()
 	r, ok := rooms.saloons[roomID]
 	rooms.mu.RUnlock()
