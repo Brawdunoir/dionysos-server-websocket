@@ -36,7 +36,7 @@ func (r JoinRoomRequest) Check() error {
 // Handles a join room demand from a client by contacting
 // the room's owner if the room is private.
 // Otherwise it just add the peer to the room.
-func (r JoinRoomRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
+func (r JoinRoomRequest) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
 	// Fetch client, room and room owner info
 	requester, err := users.User(r.Salt, publicAddr, logger)
 	if err != nil {

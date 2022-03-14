@@ -37,7 +37,7 @@ func (r NewMessageRequest) Check() error {
 }
 
 // Handles a new message from a client by forwarding it to all peers.
-func (r NewMessageRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
+func (r NewMessageRequest) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
 	// Fetch sender and room info
 	sender, err := users.User(r.Salt, publicAddr, logger)
 	if err != nil {

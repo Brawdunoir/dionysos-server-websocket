@@ -50,7 +50,7 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	slogger.Infow("new peer connected", "remoteAddr", r.RemoteAddr)
+	slogger.Info("new peer connected")
 
 	for {
 		var req requests.Request
@@ -61,7 +61,7 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		response := req.Handle(publicAddr, r.RemoteAddr, conn, users, rooms, slogger)
+		response := req.Handle(publicAddr, conn, users, rooms, slogger)
 
 		conn.WriteJSON(response)
 	}

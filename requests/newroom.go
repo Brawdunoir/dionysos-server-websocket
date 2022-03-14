@@ -32,7 +32,7 @@ func (r NewRoomRequest) Check() error {
 }
 
 // Handles a new room demand from a client.
-func (r NewRoomRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
+func (r NewRoomRequest) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
 	// Retrieve owner info
 	owner, err := users.User(r.Salt, publicAddr, logger)
 	if err != nil {

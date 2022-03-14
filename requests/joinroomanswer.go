@@ -41,18 +41,18 @@ func (r JoinRoomAnswerRequest) Check() error {
 // to every other peer in the room the newcoming, in addition to
 // send the complete list of peer to the requester.
 // In the second case, signal to the requester that his request had been denied
-func (r JoinRoomAnswerRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response) {
+func (r JoinRoomAnswerRequest) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response) {
 
 	if r.Accepted {
-		response = handleAccept(r, publicAddr, proxyAddr, conn, users, rooms, logger)
+		response = handleAccept(r, publicAddr, conn, users, rooms, logger)
 	} else {
-		response = handleDeny(r, publicAddr, proxyAddr, conn, users, rooms, logger)
+		response = handleDeny(r, publicAddr, conn, users, rooms, logger)
 	}
 
 	return
 }
 
-func handleAccept(r JoinRoomAnswerRequest, publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
+func handleAccept(r JoinRoomAnswerRequest, publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
 	// Fetch requester, owner and room info
 	requester, err := users.UserByID(r.RequesterID, logger)
 	if err != nil {
@@ -85,7 +85,7 @@ func handleAccept(r JoinRoomAnswerRequest, publicAddr, proxyAddr string, conn *w
 	return res.NewResponse(res.SuccessResponse{RequestCode: JOIN_ROOM_ANSWER}, logger)
 }
 
-func handleDeny(r JoinRoomAnswerRequest, publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
+func handleDeny(r JoinRoomAnswerRequest, publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
 	requester, err := users.UserByID(r.RequesterID, logger)
 	if err != nil {
 		return res.NewErrorResponse("you are not connected", logger)

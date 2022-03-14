@@ -27,6 +27,6 @@ const (
 
 type IRequest interface {
 	Check() error
-	Handle(publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) responses.Response
+	Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) responses.Response
 	Code() CodeType
 }
