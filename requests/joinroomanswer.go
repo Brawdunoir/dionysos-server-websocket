@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
@@ -50,8 +49,6 @@ func (r JoinRoomAnswerRequest) Handle(publicAddr, proxyAddr string, conn *websoc
 		response = handleDeny(r, publicAddr, proxyAddr, conn, users, rooms, logger)
 	}
 
-	log.Println(proxyAddr, "JoinRoomAnswerRequest success")
-
 	return
 }
 
@@ -59,19 +56,16 @@ func handleAccept(r JoinRoomAnswerRequest, publicAddr, proxyAddr string, conn *w
 	// Fetch requester, owner and room info
 	requester, err := users.UserByID(r.RequesterID, logger)
 	if err != nil {
-		log.Println("can not retrieve requester info", err)
 		return res.NewErrorResponse("you are not connected")
 	}
 
 	owner, err := users.User(r.OwnerSalt, publicAddr, logger)
 	if err != nil {
-		log.Println("can not retrieve owner info", err)
 		return res.NewErrorResponse("room's owner is disconnected")
 	}
 
 	room, err := rooms.Room(r.RoomID, logger)
 	if err != nil {
-		log.Println(err)
 		return res.NewErrorResponse("the room does not exist or has been deleted")
 	}
 
@@ -86,27 +80,34 @@ func handleAccept(r JoinRoomAnswerRequest, publicAddr, proxyAddr string, conn *w
 		return res.NewErrorResponse(err.Error())
 	}
 
+	logger.Infow("join room request", "user", requester.ID, "username", requester.Name, "owner", owner.ID, "ownername", owner.Name, "room", room.ID, "roomname", room.Name)
+
 	return res.NewResponse(res.SuccessResponse{RequestCode: JOIN_ROOM_ANSWER})
 }
 
 func handleDeny(r JoinRoomAnswerRequest, publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
 	requester, err := users.UserByID(r.RequesterID, logger)
 	if err != nil {
-		log.Println(err)
 		return res.NewErrorResponse("you are not connected")
 	}
 
-	// res, err := res.NewResponse(res.REQUEST_DENIED, JOIN_ROOM, "", nil)
 	requesterResponse := res.NewResponse(res.DeniedResponse{RequestCode: JOIN_ROOM})
 	requester.ConnMutex.Lock()
 	requester.Conn.WriteJSON(requesterResponse)
 	requester.ConnMutex.Unlock()
+
+	logger.Infow("join room request", "user", requester.ID, "username", requester.Name, "room", r.RoomID)
 
 	return res.NewResponse(res.SuccessResponse{RequestCode: JOIN_ROOM_ANSWER})
 }
 
 func (r JoinRoomAnswerRequest) Code() CodeType {
 	return JOIN_ROOM_ANSWER
+}
+
+func createJoinRoomAnswerRequest(payload json.RawMessage) (r JoinRoomAnswerRequest, err error) {
+	err = json.Unmarshal(payload, &r)
+	return
 }
 
 func addPeerAndNotify(requester *obj.User, rooms *obj.Rooms, room *obj.Room, logger *zap.SugaredLogger) error {
@@ -128,7 +129,6 @@ func addPeerAndNotify(requester *obj.User, rooms *obj.Rooms, room *obj.Room, log
 func notifyPeers(rooms *obj.Rooms, room *obj.Room, logger *zap.SugaredLogger) error {
 	peers, err := rooms.Peers(room.ID, logger)
 	if err != nil {
-		log.Println(err)
 		return errors.New("error when retrieving peers in room")
 	}
 
@@ -137,11 +137,10 @@ func notifyPeers(rooms *obj.Rooms, room *obj.Room, logger *zap.SugaredLogger) er
 		peer.ConnMutex.Lock()
 		peer.Conn.WriteJSON(res.NewResponse(res.NewPeersResponse{Peers: peers, OwnerID: room.OwnerID}))
 		peer.ConnMutex.Unlock()
+		logger.Debugw("peer has been notified of peer change", "peer", peer.ID, "peername", peer.Name, "room", room.ID, "roomname", room.Name)
 	}
-	return nil
-}
 
-func createJoinRoomAnswerRequest(payload json.RawMessage) (r JoinRoomAnswerRequest, err error) {
-	err = json.Unmarshal(payload, &r)
-	return
+	logger.Infow("notify peers", "room", room.ID, "roomname", room.Name)
+
+	return nil
 }

@@ -3,7 +3,6 @@ package requests
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
@@ -54,7 +53,7 @@ func (r ChangeUsernameRequest) Handle(publicAddr, proxyAddr string, conn *websoc
 		notifyPeers(rooms, room, logger)
 	}
 
-	log.Println(proxyAddr, "ChangeUsernameRequest success")
+	logger.Infow("change username request", "user", user.ID, "username", user.Name)
 
 	return res.NewResponse(res.ChangeUsernameResponse{Username: r.NewUsername})
 }

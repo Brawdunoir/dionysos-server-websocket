@@ -22,12 +22,12 @@ func NewUsers() *Users {
 // AddUser creates a new user and add it to the set of users
 // If the user already exists, do nothing
 // Returns user ID
-func (users *Users) AddUser(username, publicAddr, salt string, conn *websocket.Conn, logger *zap.SugaredLogger) string {
+func (users *Users) AddUser(username, publicAddr, salt string, conn *websocket.Conn, logger *zap.SugaredLogger) *User {
 	user := NewUser(username, publicAddr, salt, conn)
 
 	if _, exists := users.secureUserByID(user.ID); exists {
 		logger.Debugw("add user, user already exists", "user", user.ID, "username", user.Name)
-		return user.ID
+		return user
 	}
 
 	users.mu.Lock()
@@ -36,7 +36,7 @@ func (users *Users) AddUser(username, publicAddr, salt string, conn *websocket.C
 
 	logger.Debugw("add user", "user", user.ID, "username", user.Name)
 
-	return user.ID
+	return user
 }
 
 func (users *Users) ChangeUsername(userID, newUsername string, logger *zap.SugaredLogger) error {

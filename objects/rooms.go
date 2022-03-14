@@ -21,12 +21,12 @@ func NewRooms() *Rooms {
 // AddRoom creates a new room and add it to the set of rooms
 // If the room already exists, do nothing
 // Returns the roomID of the existing or new created room
-func (rooms *Rooms) AddRoom(roomName string, owner *User, isPrivate bool, logger *zap.SugaredLogger) string {
+func (rooms *Rooms) AddRoom(roomName string, owner *User, isPrivate bool, logger *zap.SugaredLogger) *Room {
 	room := NewRoom(roomName, owner, isPrivate)
 
 	if _, exists := rooms.secureRoom(room.ID); exists {
 		logger.Debugw("add room, room already exists", "room", room.ID, "roomname", roomName, "owner", owner.ID, "ownername", owner.Name)
-		return room.ID
+		return room
 	}
 
 	rooms.mu.Lock()
@@ -34,7 +34,7 @@ func (rooms *Rooms) AddRoom(roomName string, owner *User, isPrivate bool, logger
 	rooms.mu.Unlock()
 
 	logger.Debugw("add room", "room", room.ID, "roomname", roomName, "owner", owner.ID, "ownername", owner.Name)
-	return room.ID
+	return room
 }
 
 // AddPeer add a peer to an existing room and sets roomID for the user

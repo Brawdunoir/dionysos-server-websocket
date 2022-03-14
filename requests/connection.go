@@ -3,7 +3,6 @@ package requests
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
@@ -36,11 +35,11 @@ func (r NewConnectionRequest) Check() error {
 
 // Handles a new connection from a client.
 func (r NewConnectionRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
-	userID := users.AddUser(r.Username, publicAddr, r.Salt, conn, logger)
+	user := users.AddUser(r.Username, publicAddr, r.Salt, conn, logger)
 
-	log.Println(proxyAddr, "NewConnectionRequest success")
+	logger.Infow("connection request", "user", user.ID, "username", user.Name)
 
-	return res.NewResponse(res.ConnectionResponse{Username: r.Username, UserID: userID})
+	return res.NewResponse(res.ConnectionResponse{Username: r.Username, UserID: user.ID})
 }
 
 func (r NewConnectionRequest) Code() CodeType {

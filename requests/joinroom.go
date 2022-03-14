@@ -3,7 +3,6 @@ package requests
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
@@ -41,18 +40,15 @@ func (r JoinRoomRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Co
 	// Fetch client, room and room owner info
 	requester, err := users.User(r.Salt, publicAddr, logger)
 	if err != nil {
-		log.Println("can not retrieve requester info", err)
 		return res.NewErrorResponse("you are not connected")
 	}
 
 	room, err := rooms.Room(r.RoomID, logger)
 	if err != nil {
-		log.Println(err)
 		return res.NewErrorResponse("the room does not exist or has been deleted")
 	}
 	owner, err := users.UserByID(room.OwnerID, logger)
 	if err != nil {
-		log.Println("can not retrieve owner info", err)
 		return res.NewErrorResponse("room's owner is disconnected")
 	}
 
@@ -69,7 +65,7 @@ func (r JoinRoomRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Co
 		addPeerAndNotify(requester, rooms, room, logger)
 	}
 
-	log.Println(proxyAddr, "JoinRoomRequest success")
+	logger.Infow("join room request", "user", requester.ID, "username", requester.Name, "room", room.ID, "roomname", room.Name)
 
 	return res.NewResponse(res.JoinRoomResponse{RoomName: room.Name, RoomID: room.ID, IsPrivate: room.IsPrivate})
 }

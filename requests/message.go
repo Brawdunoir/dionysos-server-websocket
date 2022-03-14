@@ -3,7 +3,6 @@ package requests
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 
 	"github.com/Brawdunoir/dionysos-server/constants"
 	obj "github.com/Brawdunoir/dionysos-server/objects"
@@ -67,7 +66,7 @@ func (r NewMessageRequest) Handle(publicAddr, proxyAddr string, conn *websocket.
 		peer.ConnMutex.Unlock()
 	}
 
-	log.Println(proxyAddr, "NewMessageRequest success")
+	logger.Infow("new message request", "user", sender.ID, "username", sender.Name, "room", room.ID, "roomname", room.Name)
 
 	return res.NewResponse(res.SuccessResponse{RequestCode: res.CodeType(r.Code())})
 }

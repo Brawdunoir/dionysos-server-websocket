@@ -3,7 +3,6 @@ package requests
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
@@ -40,11 +39,11 @@ func (r NewRoomRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Con
 		return res.NewErrorResponse(fmt.Sprintf("%w, cannot retrieve user info from database, has he logged in first ?", err))
 	}
 
-	roomID := rooms.AddRoom(r.RoomName, owner, r.IsPrivate, logger)
+	room := rooms.AddRoom(r.RoomName, owner, r.IsPrivate, logger)
 
-	log.Println(proxyAddr, "NewRoomRequest success")
+	logger.Infow("new room request", "owner", owner.ID, "ownername", owner.Name, "room", room.ID, "roomname", room.Name)
 
-	return res.NewResponse(res.NewRoomResponse{RoomID: roomID, RoomName: r.RoomName})
+	return res.NewResponse(res.NewRoomResponse{RoomID: room.ID, RoomName: r.RoomName})
 }
 
 func (r NewRoomRequest) Code() CodeType {
