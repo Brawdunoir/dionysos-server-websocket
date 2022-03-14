@@ -56,49 +56,49 @@ func handleAccept(r JoinRoomAnswerRequest, publicAddr, proxyAddr string, conn *w
 	// Fetch requester, owner and room info
 	requester, err := users.UserByID(r.RequesterID, logger)
 	if err != nil {
-		return res.NewErrorResponse("you are not connected")
+		return res.NewErrorResponse("you are not connected", logger)
 	}
 
 	owner, err := users.User(r.OwnerSalt, publicAddr, logger)
 	if err != nil {
-		return res.NewErrorResponse("room's owner is disconnected")
+		return res.NewErrorResponse("room's owner is disconnected", logger)
 	}
 
 	room, err := rooms.Room(r.RoomID, logger)
 	if err != nil {
-		return res.NewErrorResponse("the room does not exist or has been deleted")
+		return res.NewErrorResponse("the room does not exist or has been deleted", logger)
 	}
 
 	// Assert user from this request is the legal owner of the room
 	if room.OwnerID != owner.ID {
-		return res.NewErrorResponse("you do not have this permission, you are not the room's owner")
+		return res.NewErrorResponse("you do not have this permission, you are not the room's owner", logger)
 	}
 
 	// Add new peer to the list and notify all members
 	err = addPeerAndNotify(requester, rooms, room, logger)
 	if err != nil {
-		return res.NewErrorResponse(err.Error())
+		return res.NewErrorResponse(err.Error(), logger)
 	}
 
 	logger.Infow("join room request", "user", requester.ID, "username", requester.Name, "owner", owner.ID, "ownername", owner.Name, "room", room.ID, "roomname", room.Name)
 
-	return res.NewResponse(res.SuccessResponse{RequestCode: JOIN_ROOM_ANSWER})
+	return res.NewResponse(res.SuccessResponse{RequestCode: JOIN_ROOM_ANSWER}, logger)
 }
 
 func handleDeny(r JoinRoomAnswerRequest, publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
 	requester, err := users.UserByID(r.RequesterID, logger)
 	if err != nil {
-		return res.NewErrorResponse("you are not connected")
+		return res.NewErrorResponse("you are not connected", logger)
 	}
 
-	requesterResponse := res.NewResponse(res.DeniedResponse{RequestCode: JOIN_ROOM})
+	requesterResponse := res.NewResponse(res.DeniedResponse{RequestCode: JOIN_ROOM}, logger)
 	requester.ConnMutex.Lock()
 	requester.Conn.WriteJSON(requesterResponse)
 	requester.ConnMutex.Unlock()
 
 	logger.Infow("join room request", "user", requester.ID, "username", requester.Name, "room", r.RoomID)
 
-	return res.NewResponse(res.SuccessResponse{RequestCode: JOIN_ROOM_ANSWER})
+	return res.NewResponse(res.SuccessResponse{RequestCode: JOIN_ROOM_ANSWER}, logger)
 }
 
 func (r JoinRoomAnswerRequest) Code() CodeType {
@@ -135,7 +135,7 @@ func notifyPeers(rooms *obj.Rooms, room *obj.Room, logger *zap.SugaredLogger) er
 	// Send updated peers list to all peers
 	for _, peer := range peers {
 		peer.ConnMutex.Lock()
-		peer.Conn.WriteJSON(res.NewResponse(res.NewPeersResponse{Peers: peers, OwnerID: room.OwnerID}))
+		peer.Conn.WriteJSON(res.NewResponse(res.NewPeersResponse{Peers: peers, OwnerID: room.OwnerID}, logger))
 		peer.ConnMutex.Unlock()
 		logger.Debugw("peer has been notified of peer change", "peer", peer.ID, "peername", peer.Name, "room", room.ID, "roomname", room.Name)
 	}

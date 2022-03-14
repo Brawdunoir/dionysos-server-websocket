@@ -35,19 +35,19 @@ func (r ChangeUsernameRequest) Handle(publicAddr, proxyAddr string, conn *websoc
 	// Fetch user an rename
 	user, err := users.User(r.Salt, publicAddr, logger)
 	if err != nil {
-		return res.NewErrorResponse(err.Error())
+		return res.NewErrorResponse(err.Error(), logger)
 	}
 
 	err = users.ChangeUsername(user.ID, r.NewUsername, logger)
 	if err != nil {
-		return res.NewErrorResponse(err.Error())
+		return res.NewErrorResponse(err.Error(), logger)
 	}
 
 	// If connected to a room, notify peers of the changement
 	if user.RoomID != "" {
 		room, err := rooms.Room(user.RoomID, logger)
 		if err != nil {
-			return res.NewErrorResponse(err.Error())
+			return res.NewErrorResponse(err.Error(), logger)
 		}
 
 		notifyPeers(rooms, room, logger)
@@ -55,7 +55,7 @@ func (r ChangeUsernameRequest) Handle(publicAddr, proxyAddr string, conn *websoc
 
 	logger.Infow("change username request", "user", user.ID, "username", user.Name)
 
-	return res.NewResponse(res.ChangeUsernameResponse{Username: r.NewUsername})
+	return res.NewResponse(res.ChangeUsernameResponse{Username: r.NewUsername}, logger)
 }
 
 func (r ChangeUsernameRequest) Code() CodeType {

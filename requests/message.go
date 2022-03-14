@@ -41,23 +41,23 @@ func (r NewMessageRequest) Handle(publicAddr, proxyAddr string, conn *websocket.
 	// Fetch sender and room info
 	sender, err := users.User(r.Salt, publicAddr, logger)
 	if err != nil {
-		return res.NewErrorResponse(err.Error())
+		return res.NewErrorResponse(err.Error(), logger)
 	}
 
 	room, err := rooms.Room(r.RoomID, logger)
 	if err != nil {
-		return res.NewErrorResponse(err.Error())
+		return res.NewErrorResponse(err.Error(), logger)
 	}
 
 	// Check wethever the sender is in the room
 	if !room.IsPeerPresent(sender, logger) {
-		return res.NewErrorResponse(constants.ERR_NO_PERM)
+		return res.NewErrorResponse(constants.ERR_NO_PERM, logger)
 	}
 
 	// Gather all peers and send the new message to all peers
 	peers, err := rooms.Peers(r.RoomID, logger)
 	if err != nil {
-		return res.NewErrorResponse(err.Error())
+		return res.NewErrorResponse(err.Error(), logger)
 	}
 
 	for _, peer := range peers {
@@ -68,7 +68,7 @@ func (r NewMessageRequest) Handle(publicAddr, proxyAddr string, conn *websocket.
 
 	logger.Infow("new message request", "user", sender.ID, "username", sender.Name, "room", room.ID, "roomname", room.Name)
 
-	return res.NewResponse(res.SuccessResponse{RequestCode: res.CodeType(r.Code())})
+	return res.NewResponse(res.SuccessResponse{RequestCode: res.CodeType(r.Code())}, logger)
 }
 
 func (r NewMessageRequest) Code() CodeType {

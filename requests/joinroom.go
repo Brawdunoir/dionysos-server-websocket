@@ -40,24 +40,24 @@ func (r JoinRoomRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Co
 	// Fetch client, room and room owner info
 	requester, err := users.User(r.Salt, publicAddr, logger)
 	if err != nil {
-		return res.NewErrorResponse("you are not connected")
+		return res.NewErrorResponse("you are not connected", logger)
 	}
 
 	room, err := rooms.Room(r.RoomID, logger)
 	if err != nil {
-		return res.NewErrorResponse("the room does not exist or has been deleted")
+		return res.NewErrorResponse("the room does not exist or has been deleted", logger)
 	}
 	owner, err := users.UserByID(room.OwnerID, logger)
 	if err != nil {
-		return res.NewErrorResponse("room's owner is disconnected")
+		return res.NewErrorResponse("room's owner is disconnected", logger)
 	}
 
 	if room.IsPeerPresent(requester, logger) {
-		return res.NewErrorResponse("you seem to be already in room")
+		return res.NewErrorResponse("you seem to be already in room", logger)
 	}
 
 	if room.IsPrivate { // Private room: send request to room's owner for confirmation
-		ownerRequest := res.NewResponse(res.JoinRoomPendingResponse{RoomID: room.ID, RequesterUsername: requester.Name, RequesterID: requester.ID})
+		ownerRequest := res.NewResponse(res.JoinRoomPendingResponse{RoomID: room.ID, RequesterUsername: requester.Name, RequesterID: requester.ID}, logger)
 		owner.ConnMutex.Lock()
 		owner.Conn.WriteJSON(ownerRequest)
 		owner.ConnMutex.Unlock()
@@ -67,7 +67,7 @@ func (r JoinRoomRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Co
 
 	logger.Infow("join room request", "user", requester.ID, "username", requester.Name, "room", room.ID, "roomname", room.Name)
 
-	return res.NewResponse(res.JoinRoomResponse{RoomName: room.Name, RoomID: room.ID, IsPrivate: room.IsPrivate})
+	return res.NewResponse(res.JoinRoomResponse{RoomName: room.Name, RoomID: room.ID, IsPrivate: room.IsPrivate}, logger)
 }
 
 func (r JoinRoomRequest) Code() CodeType {

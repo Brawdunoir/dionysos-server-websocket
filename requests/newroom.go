@@ -36,14 +36,14 @@ func (r NewRoomRequest) Handle(publicAddr, proxyAddr string, conn *websocket.Con
 	// Retrieve owner info
 	owner, err := users.User(r.Salt, publicAddr, logger)
 	if err != nil {
-		return res.NewErrorResponse(fmt.Sprintf("%w, cannot retrieve user info from database, has he logged in first ?", err))
+		return res.NewErrorResponse(fmt.Sprintf("%w, cannot retrieve user info from database, has he logged in first ?", err), logger)
 	}
 
 	room := rooms.AddRoom(r.RoomName, owner, r.IsPrivate, logger)
 
 	logger.Infow("new room request", "owner", owner.ID, "ownername", owner.Name, "room", room.ID, "roomname", room.Name)
 
-	return res.NewResponse(res.NewRoomResponse{RoomID: room.ID, RoomName: r.RoomName})
+	return res.NewResponse(res.NewRoomResponse{RoomID: room.ID, RoomName: r.RoomName}, logger)
 }
 
 func (r NewRoomRequest) Code() CodeType {

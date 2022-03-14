@@ -33,7 +33,7 @@ func (r Request) Check() error {
 func (req Request) Handle(publicAddr, proxyAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
 	err := req.Check()
 	if err != nil {
-		return res.NewErrorResponse(err.Error())
+		return res.NewErrorResponse(err.Error(), logger)
 	}
 
 	var request IRequest
@@ -53,15 +53,15 @@ func (req Request) Handle(publicAddr, proxyAddr string, conn *websocket.Conn, us
 	case CHANGE_USERNAME:
 		request, err = createChangeUsernameRequest(req.Payload)
 	default:
-		return res.NewErrorResponse(fmt.Sprintf("unknown code: %s", req.Code))
+		return res.NewErrorResponse(fmt.Sprintf("unknown code: %s", req.Code), logger)
 	}
 	if err != nil {
-		return res.NewErrorResponse("payload json not valid")
+		return res.NewErrorResponse("payload json not valid", logger)
 	}
 
 	err = request.Check()
 	if err != nil {
-		return res.NewErrorResponse(err.Error())
+		return res.NewErrorResponse(err.Error(), logger)
 	}
 
 	return request.Handle(publicAddr, proxyAddr, conn, users, rooms, logger)

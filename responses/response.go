@@ -2,7 +2,8 @@ package responses
 
 import (
 	"encoding/json"
-	"log"
+
+	"go.uber.org/zap"
 )
 
 // Code is a const defined in iresponse.go
@@ -13,30 +14,26 @@ type Response struct {
 }
 
 // NewResponse return a well formatted response.
-func NewResponse(r IResponse) Response {
+func NewResponse(r IResponse, logger *zap.SugaredLogger) Response {
 	if r.Code() == "" {
 		err := "not a valid IResponse payload"
-		log.Println("Response does not implement IResponse interface", err)
-		return NewErrorResponse(err)
-	}
-	_, err := r.Marshal()
-	if err != nil {
-		log.Println("cannot marshal IResponse to JSON")
-		return NewErrorResponse(err.Error())
+		logger.Errorw("response does not implement IResponse interface", "reponse", r)
+		return NewErrorResponse(err, logger)
 	}
 
-	return createResponse(r)
+	return createResponse(r, logger)
 }
 
 // NewErrorResponse return a well formatted response with a error payload.
-func NewErrorResponse(err string) Response {
-	return NewResponse(ErrorResponse{Error: err})
+func NewErrorResponse(err string, logger *zap.SugaredLogger) Response {
+	return NewResponse(ErrorResponse{Error: err}, logger)
 }
 
-func createResponse(r IResponse) Response {
+func createResponse(r IResponse, logger *zap.SugaredLogger) Response {
 	payload, err := r.Marshal()
 	if err != nil {
-		log.Println("error in createResponse", err)
+		logger.Error("cannot marshal IResponse to JSON")
+		return NewErrorResponse(err.Error(), logger)
 	}
 	return Response{Code: r.Code(), Payload: payload}
 }

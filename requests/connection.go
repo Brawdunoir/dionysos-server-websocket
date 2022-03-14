@@ -39,7 +39,7 @@ func (r NewConnectionRequest) Handle(publicAddr, proxyAddr string, conn *websock
 
 	logger.Infow("connection request", "user", user.ID, "username", user.Name)
 
-	return res.NewResponse(res.ConnectionResponse{Username: r.Username, UserID: user.ID})
+	return res.NewResponse(res.ConnectionResponse{Username: r.Username, UserID: user.ID}, logger)
 }
 
 func (r NewConnectionRequest) Code() CodeType {
