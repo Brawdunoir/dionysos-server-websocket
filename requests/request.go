@@ -53,6 +53,8 @@ func (r Request) Handle(publicAddr string, conn *websocket.Conn, users *obj.User
 		req, err = createNewMessageRequest(r.Payload)
 	case CHANGE_USERNAME:
 		req, err = createChangeUsernameRequest(r.Payload)
+	case QUIT_ROOM:
+		req, err = createQuitRoomRequest(r.Payload)
 	default:
 		response = res.NewErrorResponse(fmt.Sprintf("unknown code: %s", r.Code), logger)
 		return

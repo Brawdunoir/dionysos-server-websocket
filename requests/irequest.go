@@ -23,6 +23,8 @@ const (
 	NEW_MESSAGE = "NMS"
 	// Change the username
 	CHANGE_USERNAME = "CHU"
+	// Quit a room
+	QUIT_ROOM = "QRO"
 )
 
 type IRequest interface {

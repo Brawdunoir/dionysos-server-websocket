@@ -39,6 +39,15 @@ func (rooms *Rooms) AddRoom(roomName string, owner *User, isPrivate bool, logger
 	return room
 }
 
+// removeRoom remove a room.
+// The room emptiness is the responsability of the caller.
+func (rooms *Rooms) removeRoom(roomID string, logger *zap.SugaredLogger) {
+	rooms.mu.Lock()
+	delete(rooms.saloons, roomID)
+	rooms.mu.Unlock()
+	logger.Infow("remove room", "room", roomID)
+}
+
 // AddPeer add a peer to an existing room and sets roomID for the user
 func (rooms *Rooms) AddPeer(roomID string, u *User, logger *zap.SugaredLogger) (*Room, error) {
 	r, err := rooms.Room(roomID, logger)
@@ -51,7 +60,26 @@ func (rooms *Rooms) AddPeer(roomID string, u *User, logger *zap.SugaredLogger) (
 		return nil, err
 	}
 
-	u.RoomID = roomID
+	return r, nil
+}
+
+// RemovePeer remove a peer to an existing room.
+// If the room is empty, delete the room
+func (rooms *Rooms) RemovePeer(roomID string, u *User, logger *zap.SugaredLogger) (*Room, error) {
+	r, err := rooms.Room(roomID, logger)
+	if err != nil {
+		return nil, err
+	}
+
+	err = r.RemovePeer(u, logger)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(r.Peers) == 0 {
+		rooms.removeRoom(r.ID, logger)
+		return nil, nil
+	}
 
 	return r, nil
 }
