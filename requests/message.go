@@ -57,18 +57,9 @@ func (r NewMessageRequest) Handle(publicAddr string, conn *websocket.Conn, users
 		return
 	}
 
-	// Gather all peers and send the new message to all peers
-	peers, err := rooms.Peers(r.RoomID, logger)
-	if err != nil {
-		response = res.NewErrorResponse(err.Error(), logger)
-		return
-	}
-
-	for _, peer := range peers {
-		peer.ConnMutex.Lock()
-		peer.Conn.WriteJSON(obj.NewMessage(sender.ID, sender.Name, r.Content))
-		peer.ConnMutex.Unlock()
-	}
+	// Send the message to all peers in the room
+	mes := obj.NewMessage(sender.ID, sender.Name, r.Content)
+	room.SendJSONToPeers(mes, logger)
 
 	logger.Infow("new message request", "user", sender.ID, "username", sender.Name, "room", room.ID, "roomname", room.Name)
 

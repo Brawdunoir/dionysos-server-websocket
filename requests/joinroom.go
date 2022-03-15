@@ -62,9 +62,7 @@ func (r JoinRoomRequest) Handle(publicAddr string, conn *websocket.Conn, users *
 
 	if room.IsPrivate { // Private room: send request to room's owner for confirmation
 		ownerRequest := res.NewResponse(res.JoinRoomPendingResponse{RoomID: room.ID, RequesterUsername: user.Name, RequesterID: user.ID}, logger)
-		owner.ConnMutex.Lock()
-		owner.Conn.WriteJSON(ownerRequest)
-		owner.ConnMutex.Unlock()
+		owner.SendJSON(ownerRequest, logger)
 	} else { // Public room: Directly add the peer and notify everybody
 		err = addPeerAndNotify(user, rooms, room, logger)
 		if err != nil {

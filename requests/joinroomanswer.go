@@ -104,9 +104,7 @@ func handleDeny(r JoinRoomAnswerRequest, publicAddr string, conn *websocket.Conn
 	}
 
 	requesterResponse := res.NewResponse(res.DeniedResponse{RequestCode: JOIN_ROOM}, logger)
-	requester.ConnMutex.Lock()
-	requester.Conn.WriteJSON(requesterResponse)
-	requester.ConnMutex.Unlock()
+	requester.SendJSON(requesterResponse, logger)
 
 	logger.Infow("join room request", "user", requester.ID, "username", requester.Name, "owner", owner.ID, "ownername", owner.Name, "room", r.RoomID)
 
