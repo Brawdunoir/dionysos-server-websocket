@@ -52,9 +52,9 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 
 	slogger.Info("new peer connected")
 
-	for {
-		var req requests.Request
+	var req requests.Request
 
+	for {
 		err := conn.ReadJSON(&req)
 		if err != nil {
 			slogger.Errorw("cannot read json message", "remoteAddr", r.RemoteAddr)
