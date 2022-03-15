@@ -29,6 +29,8 @@ func (rooms *Rooms) AddRoom(roomName string, owner *User, isPrivate bool, logger
 		return room
 	}
 
+	owner.RoomID = room.ID
+
 	rooms.mu.Lock()
 	rooms.saloons[room.ID] = room
 	rooms.mu.Unlock()
