@@ -63,6 +63,14 @@ func (r *Room) IsPeerPresent(u *User, logger *zap.SugaredLogger) bool {
 	return false
 }
 
+// SendJSONToPeers send the same json formatted message to all peers in the room
+func (r *Room) SendJSONToPeers(json interface{}, logger *zap.SugaredLogger) {
+	for _, peer := range r.Peers {
+		peer.SendJSON(json, logger)
+		logger.Debugw("peer has been notified of a message", "peer", peer.ID, "peername", peer.Name, "room", r.ID, "roomname", r.Name, "message", json)
+	}
+}
+
 // Generate a room ID based on a roomname and an ownerPublicAddr
 func generateRoomID(roomName, ownerPublicAddr string) string {
 	return utils.GenerateStringHash(roomName + ownerPublicAddr)

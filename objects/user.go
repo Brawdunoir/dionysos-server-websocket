@@ -5,6 +5,7 @@ import (
 
 	"github.com/Brawdunoir/dionysos-server/utils"
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 )
 
 // User defines a user.
@@ -22,6 +23,16 @@ type User struct {
 
 func (u *User) String() string {
 	return u.Name + " (" + u.PublicIP + ")"
+}
+
+// SendJSON send a json formatted message to a user, respecting concurrency
+func (u *User) SendJSON(json interface{}, logger *zap.SugaredLogger) {
+	u.ConnMutex.Lock()
+	err := u.Conn.WriteJSON(json)
+	u.ConnMutex.Unlock()
+	if err != nil {
+		logger.Errorw("send json failed", "user", u.ID, "username", u.Name)
+	}
 }
 
 // generateUserID generates an user ID based on a public address and a salt send by the client
