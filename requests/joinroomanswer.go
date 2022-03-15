@@ -41,16 +41,16 @@ func (r JoinRoomAnswerRequest) Check() error {
 // to every other peer in the room the newcoming, in addition to
 // send the complete list of peer to the requester.
 // In the second case, signal to the requester that his request had been denied
-func (r JoinRoomAnswerRequest) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
+func (r JoinRoomAnswerRequest) Handle(publicAddr string, _ *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
 
 	if r.Accepted {
-		return handleAccept(r, publicAddr, conn, users, rooms, logger)
+		return handleAccept(r, publicAddr, users, rooms, logger)
 	} else {
-		return handleDeny(r, publicAddr, conn, users, rooms, logger)
+		return handleDeny(r, publicAddr, users, rooms, logger)
 	}
 }
 
-func handleAccept(r JoinRoomAnswerRequest, publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, owner *obj.User) {
+func handleAccept(r JoinRoomAnswerRequest, publicAddr string, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, owner *obj.User) {
 	// Fetch requester, owner and room info
 	requester, err := users.UserByID(r.RequesterID, logger)
 	if err != nil {
@@ -90,7 +90,7 @@ func handleAccept(r JoinRoomAnswerRequest, publicAddr string, conn *websocket.Co
 	return
 }
 
-func handleDeny(r JoinRoomAnswerRequest, publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, owner *obj.User) {
+func handleDeny(r JoinRoomAnswerRequest, publicAddr string, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, owner *obj.User) {
 	owner, err := users.User(r.OwnerSalt, publicAddr, logger)
 	if err != nil {
 		response = res.NewErrorResponse("room's owner is disconnected", logger)

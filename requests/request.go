@@ -30,31 +30,31 @@ func (r Request) Check() error {
 
 // Handle creates a new request corresponding to the Code field
 // and calls the Handle function on this new request
-func (req Request) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
-	err := req.Check()
+func (r Request) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
+	err := r.Check()
 	if err != nil {
 		response = res.NewErrorResponse(err.Error(), logger)
 		return
 	}
 
-	var request IRequest
+	var req IRequest
 
 	// Would be better to use a map but it is kind of hard with current r.Handle method…
-	switch req.Code {
+	switch r.Code {
 	case NEW_CONNECTION:
-		request, err = createNewConnectionRequest(req.Payload)
+		req, err = createNewConnectionRequest(r.Payload)
 	case NEW_ROOM:
-		request, err = createNewRoomRequest(req.Payload)
+		req, err = createNewRoomRequest(r.Payload)
 	case JOIN_ROOM:
-		request, err = createJoinRoomRequest(req.Payload)
+		req, err = createJoinRoomRequest(r.Payload)
 	case JOIN_ROOM_ANSWER:
-		request, err = createJoinRoomAnswerRequest(req.Payload)
+		req, err = createJoinRoomAnswerRequest(r.Payload)
 	case NEW_MESSAGE:
-		request, err = createNewMessageRequest(req.Payload)
+		req, err = createNewMessageRequest(r.Payload)
 	case CHANGE_USERNAME:
-		request, err = createChangeUsernameRequest(req.Payload)
+		req, err = createChangeUsernameRequest(r.Payload)
 	default:
-		response = res.NewErrorResponse(fmt.Sprintf("unknown code: %s", req.Code), logger)
+		response = res.NewErrorResponse(fmt.Sprintf("unknown code: %s", r.Code), logger)
 		return
 	}
 	if err != nil {
@@ -62,11 +62,11 @@ func (req Request) Handle(publicAddr string, conn *websocket.Conn, users *obj.Us
 		return
 	}
 
-	err = request.Check()
+	err = req.Check()
 	if err != nil {
 		response = res.NewErrorResponse(err.Error(), logger)
 		return
 	}
 
-	return request.Handle(publicAddr, conn, users, rooms, logger)
+	return req.Handle(publicAddr, conn, users, rooms, logger)
 }

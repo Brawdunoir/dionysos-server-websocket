@@ -31,7 +31,7 @@ func (r ChangeUsernameRequest) Check() error {
 }
 
 // Handles a username changement request from a client.
-func (r ChangeUsernameRequest) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
+func (r ChangeUsernameRequest) Handle(publicAddr string, _ *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
 	// Fetch user an rename
 	user, err := users.User(r.Salt, publicAddr, logger)
 	if err != nil {
