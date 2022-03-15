@@ -32,18 +32,20 @@ func (r NewRoomRequest) Check() error {
 }
 
 // Handles a new room demand from a client.
-func (r NewRoomRequest) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
+func (r NewRoomRequest) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
 	// Retrieve owner info
-	owner, err := users.User(r.Salt, publicAddr, logger)
+	user, err := users.User(r.Salt, publicAddr, logger)
 	if err != nil {
-		return res.NewErrorResponse(fmt.Sprintf("%w, cannot retrieve user info from database, has he logged in first ?", err), logger)
+		response = res.NewErrorResponse(fmt.Sprintf("%w, cannot retrieve user info from database, has he logged in first ?", err), logger)
+		return
 	}
 
-	room := rooms.AddRoom(r.RoomName, owner, r.IsPrivate, logger)
+	room := rooms.AddRoom(r.RoomName, user, r.IsPrivate, logger)
 
-	logger.Infow("new room request", "owner", owner.ID, "ownername", owner.Name, "room", room.ID, "roomname", room.Name)
+	logger.Infow("new room request", "owner", user.ID, "ownername", user.Name, "room", room.ID, "roomname", room.Name)
 
-	return res.NewResponse(res.NewRoomResponse{RoomID: room.ID, RoomName: r.RoomName}, logger)
+	response = res.NewResponse(res.NewRoomResponse{RoomID: room.ID, RoomName: r.RoomName}, logger)
+	return
 }
 
 func (r NewRoomRequest) Code() CodeType {

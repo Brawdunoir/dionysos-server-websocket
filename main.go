@@ -61,8 +61,15 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		response := req.Handle(publicAddr, conn, users, rooms, slogger)
+		response, user := req.Handle(publicAddr, conn, users, rooms, slogger)
 
-		conn.WriteJSON(response)
+		// Send the response using mutex for concurrent calls to WriteJSON if the user
+		// exists.
+		if user != nil {
+			user.SendJSON(response, slogger)
+		} else {
+			conn.WriteJSON(response)
+		}
+
 	}
 }

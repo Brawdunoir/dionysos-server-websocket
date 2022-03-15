@@ -34,12 +34,13 @@ func (r NewConnectionRequest) Check() error {
 }
 
 // Handles a new connection from a client.
-func (r NewConnectionRequest) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
-	user := users.AddUser(r.Username, publicAddr, r.Salt, conn, logger)
+func (r NewConnectionRequest) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
+	user = users.AddUser(r.Username, publicAddr, r.Salt, conn, logger)
 
 	logger.Infow("connection request", "user", user.ID, "username", user.Name)
 
-	return res.NewResponse(res.ConnectionResponse{Username: r.Username, UserID: user.ID}, logger)
+	response = res.NewResponse(res.ConnectionResponse{Username: r.Username, UserID: user.ID}, logger)
+	return
 }
 
 func (r NewConnectionRequest) Code() CodeType {

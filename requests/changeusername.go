@@ -31,23 +31,26 @@ func (r ChangeUsernameRequest) Check() error {
 }
 
 // Handles a username changement request from a client.
-func (r ChangeUsernameRequest) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
+func (r ChangeUsernameRequest) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
 	// Fetch user an rename
 	user, err := users.User(r.Salt, publicAddr, logger)
 	if err != nil {
-		return res.NewErrorResponse(err.Error(), logger)
+		response = res.NewErrorResponse(err.Error(), logger)
+		return
 	}
 
 	err = users.ChangeUsername(user.ID, r.NewUsername, logger)
 	if err != nil {
-		return res.NewErrorResponse(err.Error(), logger)
+		response = res.NewErrorResponse(err.Error(), logger)
+		return
 	}
 
 	// If connected to a room, notify peers of the changement
 	if user.RoomID != "" {
 		room, err := rooms.Room(user.RoomID, logger)
 		if err != nil {
-			return res.NewErrorResponse(err.Error(), logger)
+			response = res.NewErrorResponse(err.Error(), logger)
+			return
 		}
 
 		notifyPeers(rooms, room, logger)
@@ -55,7 +58,8 @@ func (r ChangeUsernameRequest) Handle(publicAddr string, conn *websocket.Conn, u
 
 	logger.Infow("change username request", "user", user.ID, "username", user.Name)
 
-	return res.NewResponse(res.ChangeUsernameResponse{Username: r.NewUsername}, logger)
+	response = res.NewResponse(res.ChangeUsernameResponse{Username: r.NewUsername}, logger)
+	return
 }
 
 func (r ChangeUsernameRequest) Code() CodeType {

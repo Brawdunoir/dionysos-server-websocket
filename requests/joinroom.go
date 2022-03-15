@@ -36,38 +36,47 @@ func (r JoinRoomRequest) Check() error {
 // Handles a join room demand from a client by contacting
 // the room's owner if the room is private.
 // Otherwise it just add the peer to the room.
-func (r JoinRoomRequest) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
+func (r JoinRoomRequest) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
 	// Fetch client, room and room owner info
-	requester, err := users.User(r.Salt, publicAddr, logger)
+	user, err := users.User(r.Salt, publicAddr, logger)
 	if err != nil {
-		return res.NewErrorResponse("you are not connected", logger)
+		response = res.NewErrorResponse("you are not connected", logger)
+		return
 	}
 
 	room, err := rooms.Room(r.RoomID, logger)
 	if err != nil {
-		return res.NewErrorResponse("the room does not exist or has been deleted", logger)
+		response = res.NewErrorResponse("the room does not exist or has been deleted", logger)
+		return
 	}
 	owner, err := users.UserByID(room.OwnerID, logger)
 	if err != nil {
-		return res.NewErrorResponse("room's owner is disconnected", logger)
+		response = res.NewErrorResponse("room's owner is disconnected", logger)
+		return
 	}
 
-	if room.IsPeerPresent(requester, logger) {
-		return res.NewErrorResponse("you seem to be already in room", logger)
+	if room.IsPeerPresent(user, logger) {
+		response = res.NewErrorResponse("you seem to be already in room", logger)
+		return
 	}
 
 	if room.IsPrivate { // Private room: send request to room's owner for confirmation
-		ownerRequest := res.NewResponse(res.JoinRoomPendingResponse{RoomID: room.ID, RequesterUsername: requester.Name, RequesterID: requester.ID}, logger)
+		ownerRequest := res.NewResponse(res.JoinRoomPendingResponse{RoomID: room.ID, RequesterUsername: user.Name, RequesterID: user.ID}, logger)
 		owner.ConnMutex.Lock()
 		owner.Conn.WriteJSON(ownerRequest)
 		owner.ConnMutex.Unlock()
 	} else { // Public room: Directly add the peer and notify everybody
-		addPeerAndNotify(requester, rooms, room, logger)
+		err = addPeerAndNotify(user, rooms, room, logger)
+		if err != nil {
+			response = res.NewErrorResponse(err.Error(), logger)
+			return
+		}
 	}
 
-	logger.Infow("join room request", "user", requester.ID, "username", requester.Name, "room", room.ID, "roomname", room.Name)
+	logger.Infow("join room request", "user", user.ID, "username", user.Name, "room", room.ID, "roomname", room.Name)
 
-	return res.NewResponse(res.JoinRoomResponse{RoomName: room.Name, RoomID: room.ID, IsPrivate: room.IsPrivate}, logger)
+	response = res.NewResponse(res.JoinRoomResponse{RoomName: room.Name, RoomID: room.ID, IsPrivate: room.IsPrivate}, logger)
+	return
 }
 
 func (r JoinRoomRequest) Code() CodeType {

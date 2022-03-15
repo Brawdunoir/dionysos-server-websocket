@@ -30,10 +30,11 @@ func (r Request) Check() error {
 
 // Handle creates a new request corresponding to the Code field
 // and calls the Handle function on this new request
-func (req Request) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
+func (req Request) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
 	err := req.Check()
 	if err != nil {
-		return res.NewErrorResponse(err.Error(), logger)
+		response = res.NewErrorResponse(err.Error(), logger)
+		return
 	}
 
 	var request IRequest
@@ -53,15 +54,18 @@ func (req Request) Handle(publicAddr string, conn *websocket.Conn, users *obj.Us
 	case CHANGE_USERNAME:
 		request, err = createChangeUsernameRequest(req.Payload)
 	default:
-		return res.NewErrorResponse(fmt.Sprintf("unknown code: %s", req.Code), logger)
+		response = res.NewErrorResponse(fmt.Sprintf("unknown code: %s", req.Code), logger)
+		return
 	}
 	if err != nil {
-		return res.NewErrorResponse("payload json not valid", logger)
+		response = res.NewErrorResponse("payload json not valid", logger)
+		return
 	}
 
 	err = request.Check()
 	if err != nil {
-		return res.NewErrorResponse(err.Error(), logger)
+		response = res.NewErrorResponse(err.Error(), logger)
+		return
 	}
 
 	return request.Handle(publicAddr, conn, users, rooms, logger)

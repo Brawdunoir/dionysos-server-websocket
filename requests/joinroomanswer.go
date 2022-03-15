@@ -41,54 +41,66 @@ func (r JoinRoomAnswerRequest) Check() error {
 // to every other peer in the room the newcoming, in addition to
 // send the complete list of peer to the requester.
 // In the second case, signal to the requester that his request had been denied
-func (r JoinRoomAnswerRequest) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response) {
+func (r JoinRoomAnswerRequest) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
 
 	if r.Accepted {
-		response = handleAccept(r, publicAddr, conn, users, rooms, logger)
+		return handleAccept(r, publicAddr, conn, users, rooms, logger)
 	} else {
-		response = handleDeny(r, publicAddr, conn, users, rooms, logger)
+		return handleDeny(r, publicAddr, conn, users, rooms, logger)
 	}
-
-	return
 }
 
-func handleAccept(r JoinRoomAnswerRequest, publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
+func handleAccept(r JoinRoomAnswerRequest, publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, owner *obj.User) {
 	// Fetch requester, owner and room info
 	requester, err := users.UserByID(r.RequesterID, logger)
 	if err != nil {
-		return res.NewErrorResponse("you are not connected", logger)
+		response = res.NewErrorResponse("you are not connected", logger)
+		return
+
 	}
 
-	owner, err := users.User(r.OwnerSalt, publicAddr, logger)
+	owner, err = users.User(r.OwnerSalt, publicAddr, logger)
 	if err != nil {
-		return res.NewErrorResponse("room's owner is disconnected", logger)
+		response = res.NewErrorResponse("room's owner is disconnected", logger)
+		return
 	}
 
 	room, err := rooms.Room(r.RoomID, logger)
 	if err != nil {
-		return res.NewErrorResponse("the room does not exist or has been deleted", logger)
+		response = res.NewErrorResponse("the room does not exist or has been deleted", logger)
+		return
 	}
 
 	// Assert user from this request is the legal owner of the room
 	if room.OwnerID != owner.ID {
-		return res.NewErrorResponse("you do not have this permission, you are not the room's owner", logger)
+		response = res.NewErrorResponse("you do not have this permission, you are not the room's owner", logger)
+		return
 	}
 
 	// Add new peer to the list and notify all members
 	err = addPeerAndNotify(requester, rooms, room, logger)
 	if err != nil {
-		return res.NewErrorResponse(err.Error(), logger)
+		response = res.NewErrorResponse(err.Error(), logger)
+		return
 	}
 
 	logger.Infow("join room request", "user", requester.ID, "username", requester.Name, "owner", owner.ID, "ownername", owner.Name, "room", room.ID, "roomname", room.Name)
 
-	return res.NewResponse(res.SuccessResponse{RequestCode: JOIN_ROOM_ANSWER}, logger)
+	response = res.NewResponse(res.SuccessResponse{RequestCode: JOIN_ROOM_ANSWER}, logger)
+	return
 }
 
-func handleDeny(r JoinRoomAnswerRequest, publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) res.Response {
+func handleDeny(r JoinRoomAnswerRequest, publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, owner *obj.User) {
+	owner, err := users.User(r.OwnerSalt, publicAddr, logger)
+	if err != nil {
+		response = res.NewErrorResponse("room's owner is disconnected", logger)
+		return
+	}
+
 	requester, err := users.UserByID(r.RequesterID, logger)
 	if err != nil {
-		return res.NewErrorResponse("you are not connected", logger)
+		response = res.NewErrorResponse("you are not connected", logger)
+		return
 	}
 
 	requesterResponse := res.NewResponse(res.DeniedResponse{RequestCode: JOIN_ROOM}, logger)
@@ -96,9 +108,10 @@ func handleDeny(r JoinRoomAnswerRequest, publicAddr string, conn *websocket.Conn
 	requester.Conn.WriteJSON(requesterResponse)
 	requester.ConnMutex.Unlock()
 
-	logger.Infow("join room request", "user", requester.ID, "username", requester.Name, "room", r.RoomID)
+	logger.Infow("join room request", "user", requester.ID, "username", requester.Name, "owner", owner.ID, "ownername", owner.Name, "room", r.RoomID)
 
-	return res.NewResponse(res.SuccessResponse{RequestCode: JOIN_ROOM_ANSWER}, logger)
+	response = res.NewResponse(res.SuccessResponse{RequestCode: JOIN_ROOM_ANSWER}, logger)
+	return
 }
 
 func (r JoinRoomAnswerRequest) Code() CodeType {
