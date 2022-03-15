@@ -24,7 +24,7 @@ func (r *Room) String() string {
 	return r.Name + " (" + r.ID + ")"
 }
 
-// AddPeer safely adds a peer to a room
+// AddPeer safely adds a peer to a room and sets roomID for the user
 func (r *Room) AddPeer(u *User, logger *zap.SugaredLogger) error {
 
 	if ok := r.IsPeerPresent(u, logger); ok {
@@ -35,22 +35,27 @@ func (r *Room) AddPeer(u *User, logger *zap.SugaredLogger) error {
 	r.mu.Lock()
 	r.Peers = append(r.Peers, u)
 	r.mu.Unlock()
+
+	u.RoomID = r.ID
+
 	logger.Debugw("add peer", "user", u.ID, "username", u.Name, "room", r.ID, "roomname", r.Name)
 	return nil
 }
 
-// RemovePeer safely removes a peer from a room
-func (r *Room) RemovePeer(u *User, logger *zap.SugaredLogger) {
+// RemovePeer safely removes a peer from a room and sets roomID for the user
+func (r *Room) RemovePeer(u *User, logger *zap.SugaredLogger) error {
 	for i, p := range r.Peers {
 		if p.ID == u.ID {
 			r.mu.Lock()
 			r.Peers = append(r.Peers[:i], r.Peers[i+1:]...)
 			r.mu.Unlock()
+			u.RoomID = ""
 			logger.Debugw("remove peer from room", "user", u.ID, "username", u.Name, "room", r.ID, "roomname", r.Name)
-			return
+			return nil
 		}
 	}
 	logger.Debugw("remove peer failed, the user cannot be found", "user", u.ID, "username", u.Name, "room", r.ID, "roomname", r.Name)
+	return errors.New("user not in the room")
 }
 
 // IsPeerPresent evaluates if a certain user is in the room
