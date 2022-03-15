@@ -133,12 +133,8 @@ func notifyPeers(rooms *obj.Rooms, room *obj.Room, logger *zap.SugaredLogger) er
 	}
 
 	// Send updated peers list to all peers
-	for _, peer := range peers {
-		peer.ConnMutex.Lock()
-		peer.Conn.WriteJSON(res.NewResponse(res.NewPeersResponse{Peers: peers, OwnerID: room.OwnerID}, logger))
-		peer.ConnMutex.Unlock()
-		logger.Debugw("peer has been notified of peer change", "peer", peer.ID, "peername", peer.Name, "room", room.ID, "roomname", room.Name)
-	}
+	mes := res.NewResponse(res.NewPeersResponse{Peers: peers, OwnerID: room.OwnerID}, logger)
+	room.SendJSONToPeers(mes, logger)
 
 	logger.Infow("notify peers", "room", room.ID, "roomname", room.Name)
 
