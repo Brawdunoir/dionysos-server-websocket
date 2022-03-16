@@ -38,20 +38,9 @@ func (r JoinRoomRequest) Check() error {
 // Otherwise it just add the peer to the room.
 func (r JoinRoomRequest) Handle(publicAddr string, _ *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
 	// Fetch client, room and room owner info
-	user, err := users.User(r.Salt, publicAddr, logger)
+	user, owner, room, err := getUserAndRoomAndRoomOwner(r.Salt, publicAddr, r.RoomID, users, rooms, logger)
 	if err != nil {
-		response = res.NewErrorResponse("you are not connected", logger)
-		return
-	}
-
-	room, err := rooms.Room(r.RoomID, logger)
-	if err != nil {
-		response = res.NewErrorResponse("the room does not exist or has been deleted", logger)
-		return
-	}
-	owner, err := users.UserByID(room.OwnerID, logger)
-	if err != nil {
-		response = res.NewErrorResponse("room's owner is disconnected", logger)
+		response = res.NewErrorResponse(err.Error(), logger)
 		return
 	}
 

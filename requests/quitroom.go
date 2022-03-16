@@ -38,15 +38,9 @@ func (r QuitRoomRequest) Check() error {
 // If the room is not empty it notify the remaining peers with an updated list of peers.
 func (r QuitRoomRequest) Handle(publicAddr string, _ *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
 	// Fetch client and room info
-	user, err := users.User(r.Salt, publicAddr, logger)
+	user, room, err := getUserAndRoom(r.Salt, publicAddr, r.RoomID, users, rooms, logger)
 	if err != nil {
-		response = res.NewErrorResponse("you are not connected", logger)
-		return
-	}
-
-	room, err := rooms.RemovePeer(r.RoomID, user, logger)
-	if err != nil {
-		response = res.NewErrorResponse("you are not part of the room", logger)
+		response = res.NewErrorResponse(err.Error(), logger)
 		return
 	}
 
@@ -58,7 +52,7 @@ func (r QuitRoomRequest) Handle(publicAddr string, _ *websocket.Conn, users *obj
 		}
 	}
 
-	logger.Infow("quit room request", "user", user.ID, "username", user.Name)
+	logger.Infow("quit room request", "user", user.ID, "username", user.Name, "room", room.ID, "roomname", room.Name)
 
 	response = res.NewResponse(res.SuccessResponse{RequestCode: res.CodeType(r.Code())}, logger)
 	return

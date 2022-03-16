@@ -51,23 +51,19 @@ func (r JoinRoomAnswerRequest) Handle(publicAddr string, _ *websocket.Conn, user
 }
 
 func handleAccept(r JoinRoomAnswerRequest, publicAddr string, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, owner *obj.User) {
-	// Fetch requester, owner and room info
-	requester, err := users.UserByID(r.RequesterID, logger)
+	// Fetch requester and room info
+	requester, room, err := getUserByIdAndRoom(r.RequesterID, r.RoomID, users, rooms, logger)
 	if err != nil {
-		response = res.NewErrorResponse("you are not connected", logger)
+		response = res.NewErrorResponse(err.Error(), logger)
 		return
 
 	}
 
+	// Get owner with salt and publicAddr and not with helper function
+	// to verify from the salt that he the right sender of request.
 	owner, err = users.User(r.OwnerSalt, publicAddr, logger)
 	if err != nil {
 		response = res.NewErrorResponse("room's owner is disconnected", logger)
-		return
-	}
-
-	room, err := rooms.Room(r.RoomID, logger)
-	if err != nil {
-		response = res.NewErrorResponse("the room does not exist or has been deleted", logger)
 		return
 	}
 
