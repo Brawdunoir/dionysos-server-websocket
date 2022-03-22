@@ -2,7 +2,6 @@ package requests
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 
 	"github.com/Brawdunoir/dionysos-server/constants"
@@ -96,35 +95,4 @@ func (r JoinRoomAnswerRequest) Code() CodeType {
 func createJoinRoomAnswerRequest(payload json.RawMessage) (r JoinRoomAnswerRequest, err error) {
 	err = json.Unmarshal(payload, &r)
 	return
-}
-
-func addPeerAndNotify(requester *obj.User, rooms *obj.Rooms, room *obj.Room, logger *zap.SugaredLogger) error {
-	// Add the newcoming to the list of the peer before notifying
-	_, err := rooms.AddPeer(room.ID, requester, logger)
-	if err != nil {
-		return err
-	}
-
-	err = notifyPeers(rooms, room, logger)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// Notify peers that the room peer list has changed
-func notifyPeers(rooms *obj.Rooms, room *obj.Room, logger *zap.SugaredLogger) error {
-	peers, err := rooms.Peers(room.ID, logger)
-	if err != nil {
-		return errors.New("error when retrieving peers in room")
-	}
-
-	// Send updated peers list to all peers
-	mes := res.NewResponse(res.NewPeersResponse{Peers: peers, OwnerID: room.OwnerID}, logger)
-	room.SendJSONToPeers(mes, logger)
-
-	logger.Infow("notify peers", "room", room.ID, "roomname", room.Name)
-
-	return nil
 }
