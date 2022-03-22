@@ -32,7 +32,7 @@ func (r NewRoomRequest) Handle(publicAddr, uuid string, _ *websocket.Conn, users
 	// Retrieve owner info
 	user, err := users.User(uuid, publicAddr, logger)
 	if err != nil {
-		response = res.NewErrorResponse(fmt.Sprintf("%w, cannot retrieve user info from database, has he logged in first ?", err), logger)
+		response = res.NewErrorResponse(err.Error(), logger)
 		return
 	}
 
