@@ -30,7 +30,7 @@ func (r Request) Check() error {
 
 // Handle creates a new request corresponding to the Code field
 // and calls the Handle function on this new request
-func (r Request) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
+func (r Request) Handle(publicAddr, uuid string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
 	err := r.Check()
 	if err != nil {
 		response = res.NewErrorResponse(err.Error(), logger)
@@ -72,5 +72,5 @@ func (r Request) Handle(publicAddr string, conn *websocket.Conn, users *obj.User
 		return
 	}
 
-	return req.Handle(publicAddr, conn, users, rooms, logger)
+	return req.Handle(publicAddr, uuid, conn, users, rooms, logger)
 }

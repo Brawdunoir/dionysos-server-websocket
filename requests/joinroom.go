@@ -16,7 +16,6 @@ import (
 // and join the RequesterID to his answer.
 type JoinRoomRequest struct {
 	RoomID string `json:"roomId"`
-	Salt   string `json:"salt"`
 }
 
 func (r JoinRoomRequest) Check() error {
@@ -24,9 +23,6 @@ func (r JoinRoomRequest) Check() error {
 
 	if r.RoomID == "" {
 		err = fmt.Errorf("%w; roomId is empty", err)
-	}
-	if r.Salt == "" {
-		err = fmt.Errorf("%w; salt is empty", err)
 	}
 	// RequesterID can be empty since it is replaced by server
 
@@ -36,9 +32,9 @@ func (r JoinRoomRequest) Check() error {
 // Handles a join room demand from a client by contacting
 // the room's owner if the room is private.
 // Otherwise it just add the peer to the room.
-func (r JoinRoomRequest) Handle(publicAddr string, _ *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
+func (r JoinRoomRequest) Handle(publicAddr, uuid string, _ *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
 	// Fetch client, room and room owner info
-	user, owner, room, err := getUserAndRoomAndRoomOwner(r.Salt, publicAddr, r.RoomID, users, rooms, logger)
+	user, owner, room, err := getUserAndRoomAndRoomOwner(uuid, publicAddr, r.RoomID, users, rooms, logger)
 	if err != nil {
 		response = res.NewErrorResponse(err.Error(), logger)
 		return

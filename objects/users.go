@@ -22,8 +22,8 @@ func NewUsers() *Users {
 // AddUser creates a new user and add it to the set of users
 // If the user already exists, do nothing
 // Returns user ID
-func (users *Users) AddUser(username, publicAddr, salt string, conn *websocket.Conn, logger *zap.SugaredLogger) *User {
-	user := NewUser(username, publicAddr, salt, conn)
+func (users *Users) AddUser(username, publicAddr, uuid string, conn *websocket.Conn, logger *zap.SugaredLogger) *User {
+	user := NewUser(username, publicAddr, uuid, conn)
 
 	if _, exists := users.secureUserByID(user.ID); exists {
 		logger.Debugw("add user, user already exists", "user", user.ID, "username", user.Name)
@@ -77,10 +77,10 @@ func (users *Users) UserByID(userID string, logger *zap.SugaredLogger) (*User, e
 	}
 }
 
-// User returns a user in a set of user given its salt and public address
+// User returns a user in a set of user given its uuid (client generated) and public address
 // Return an error if the user is not in set
-func (users *Users) User(salt, publicAddr string, logger *zap.SugaredLogger) (*User, error) {
-	userID := generateUserID(publicAddr, salt)
+func (users *Users) User(uuid, publicAddr string, logger *zap.SugaredLogger) (*User, error) {
+	userID := generateUserID(publicAddr, uuid)
 	return users.UserByID(userID, logger)
 }
 

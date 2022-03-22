@@ -14,7 +14,6 @@ import (
 // The changement will trigger a RoomUserList update.
 type ChangeUsernameRequest struct {
 	NewUsername string `json:"newUsername"`
-	Salt        string `json:"salt"`
 }
 
 func (r ChangeUsernameRequest) Check() error {
@@ -23,17 +22,14 @@ func (r ChangeUsernameRequest) Check() error {
 	if r.NewUsername == "" {
 		err = fmt.Errorf("%w; newUsername is empty", err)
 	}
-	if r.Salt == "" {
-		err = fmt.Errorf("%w; salt is empty", err)
-	}
 
 	return err
 }
 
 // Handles a username changement request from a client.
-func (r ChangeUsernameRequest) Handle(publicAddr string, _ *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
+func (r ChangeUsernameRequest) Handle(publicAddr, uuid string, _ *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
 	// Fetch user an rename
-	user, err := users.User(r.Salt, publicAddr, logger)
+	user, err := users.User(uuid, publicAddr, logger)
 	if err != nil {
 		response = res.NewErrorResponse(err.Error(), logger)
 		return

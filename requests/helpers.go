@@ -5,8 +5,8 @@ import (
 	"go.uber.org/zap"
 )
 
-func getUserAndRoom(userSalt, publicAddr, roomID string, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (user *obj.User, room *obj.Room, err error) {
-	user, err = users.User(userSalt, publicAddr, logger)
+func getUserAndRoom(userUuid, publicAddr, roomID string, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (user *obj.User, room *obj.Room, err error) {
+	user, err = users.User(userUuid, publicAddr, logger)
 	if err != nil {
 		return
 	}
@@ -33,8 +33,8 @@ func getUserByIdAndRoom(userID, roomID string, users *obj.Users, rooms *obj.Room
 	return
 }
 
-func getUserAndRoomAndRoomOwner(userSalt, publicAddr, roomID string, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (user, owner *obj.User, room *obj.Room, err error) {
-	user, room, err = getUserAndRoom(userSalt, publicAddr, roomID, users, rooms, logger)
+func getUserAndRoomAndRoomOwner(userUuid, publicAddr, roomID string, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (user, owner *obj.User, room *obj.Room, err error) {
+	user, room, err = getUserAndRoom(userUuid, publicAddr, roomID, users, rooms, logger)
 	if err != nil {
 		return
 	}

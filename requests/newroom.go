@@ -14,7 +14,6 @@ import (
 // send a NewRoomResponse has a confirmation for the creation.
 type NewRoomRequest struct {
 	RoomName  string `json:"roomName"`
-	Salt      string `json:"salt"`
 	IsPrivate bool   `json:"isPrivate"`
 }
 
@@ -24,17 +23,14 @@ func (r NewRoomRequest) Check() error {
 	if r.RoomName == "" {
 		err = fmt.Errorf("%w; roomName is empty", err)
 	}
-	if r.Salt == "" {
-		err = fmt.Errorf("%w; salt is empty", err)
-	}
 
 	return err
 }
 
 // Handles a new room demand from a client.
-func (r NewRoomRequest) Handle(publicAddr string, _ *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
+func (r NewRoomRequest) Handle(publicAddr, uuid string, _ *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
 	// Retrieve owner info
-	user, err := users.User(r.Salt, publicAddr, logger)
+	user, err := users.User(uuid, publicAddr, logger)
 	if err != nil {
 		response = res.NewErrorResponse(fmt.Sprintf("%w, cannot retrieve user info from database, has he logged in first ?", err), logger)
 		return

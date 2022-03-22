@@ -9,7 +9,7 @@ import (
 )
 
 // User defines a user.
-// Salt is used to generate the ID, it cannot change during a session
+// An uuid is used to generate the ID, it cannot change during a session
 // and it is a secret shared between the client and the server.
 type User struct {
 	ID        string          `json:"id"`
@@ -34,12 +34,12 @@ func (u *User) SendJSON(json interface{}, logger *zap.SugaredLogger) {
 	}
 }
 
-// generateUserID generates an user ID based on a public address and a salt send by the client
-func generateUserID(publicAddr, salt string) string {
-	return utils.GenerateStringHash(publicAddr + salt)
+// generateUserID generates an user ID based on a public address and a uuid send by the client
+func generateUserID(publicAddr, uuid string) string {
+	return utils.GenerateStringHash(publicAddr + uuid)
 }
 
 // newUser creates a new user
-func NewUser(username, publicAddr, salt string, conn *websocket.Conn) *User {
-	return &User{ID: generateUserID(publicAddr, salt), RoomID: "", Name: username, PublicIP: publicAddr, ConnMutex: sync.Mutex{}, Conn: conn}
+func NewUser(username, publicAddr, uuid string, conn *websocket.Conn) *User {
+	return &User{ID: generateUserID(publicAddr, uuid), RoomID: "", Name: username, PublicIP: publicAddr, ConnMutex: sync.Mutex{}, Conn: conn}
 }

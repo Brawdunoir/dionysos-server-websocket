@@ -14,7 +14,6 @@ import (
 // JoinRoomAnswerRequest indicates if a user (Requester) is
 // accepted or not in the room
 type JoinRoomAnswerRequest struct {
-	OwnerSalt   string `json:"ownerSalt"`
 	RoomID      string `json:"roomId"`
 	RequesterID string `json:"requesterId"`
 	Accepted    bool   `json:"accepted"`
@@ -23,9 +22,6 @@ type JoinRoomAnswerRequest struct {
 func (r JoinRoomAnswerRequest) Check() error {
 	var err error
 
-	if r.OwnerSalt == "" {
-		err = fmt.Errorf("%w; ownerSalt is empty", err)
-	}
 	if r.RoomID == "" {
 		err = fmt.Errorf("%w; roomId is empty", err)
 	}
@@ -41,16 +37,16 @@ func (r JoinRoomAnswerRequest) Check() error {
 // to every other peer in the room the newcoming, in addition to
 // send the complete list of peer to the requester.
 // In the second case, signal to the requester that his request had been denied
-func (r JoinRoomAnswerRequest) Handle(publicAddr string, _ *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
+func (r JoinRoomAnswerRequest) Handle(publicAddr, uuid string, _ *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
 
 	if r.Accepted {
-		return handleAccept(r, publicAddr, users, rooms, logger)
+		return handleAccept(r, uuid, publicAddr, users, rooms, logger)
 	} else {
-		return handleDeny(r, publicAddr, users, rooms, logger)
+		return handleDeny(r, uuid, publicAddr, users, rooms, logger)
 	}
 }
 
-func handleAccept(r JoinRoomAnswerRequest, publicAddr string, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, owner *obj.User) {
+func handleAccept(r JoinRoomAnswerRequest, publicAddr, uuid string, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, owner *obj.User) {
 	// Fetch requester and room info
 	requester, room, err := getUserByIdAndRoom(r.RequesterID, r.RoomID, users, rooms, logger)
 	if err != nil {
@@ -59,9 +55,9 @@ func handleAccept(r JoinRoomAnswerRequest, publicAddr string, users *obj.Users, 
 
 	}
 
-	// Get owner with salt and publicAddr and not with helper function
-	// to verify from the salt that he the right sender of request.
-	owner, err = users.User(r.OwnerSalt, publicAddr, logger)
+	// Get owner with uuid and publicAddr and not with helper function
+	// to verify from the uuid that he the right sender of request.
+	owner, err = users.User(uuid, publicAddr, logger)
 	if err != nil {
 		response = res.NewErrorResponse("room's owner is disconnected", logger)
 		return
@@ -86,8 +82,8 @@ func handleAccept(r JoinRoomAnswerRequest, publicAddr string, users *obj.Users, 
 	return
 }
 
-func handleDeny(r JoinRoomAnswerRequest, publicAddr string, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, owner *obj.User) {
-	owner, err := users.User(r.OwnerSalt, publicAddr, logger)
+func handleDeny(r JoinRoomAnswerRequest, publicAddr, uuid string, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, owner *obj.User) {
+	owner, err := users.User(uuid, publicAddr, logger)
 	if err != nil {
 		response = res.NewErrorResponse("room's owner is disconnected", logger)
 		return

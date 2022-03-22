@@ -15,7 +15,6 @@ import (
 // No message is store on the server side, the message must be stored
 // on client side.
 type NewMessageRequest struct {
-	Salt    string `json:"salt"`
 	RoomID  string `json:"roomId"`
 	Content string `json:"content"`
 }
@@ -23,9 +22,6 @@ type NewMessageRequest struct {
 func (r NewMessageRequest) Check() error {
 	var err error
 
-	if r.Salt == "" {
-		err = fmt.Errorf("%w; salt is empty", err)
-	}
 	if r.RoomID == "" {
 		err = fmt.Errorf("%w; roomId is empty", err)
 	}
@@ -37,9 +33,9 @@ func (r NewMessageRequest) Check() error {
 }
 
 // Handles a new message from a client by forwarding it to all peers.
-func (r NewMessageRequest) Handle(publicAddr string, _ *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, sender *obj.User) {
+func (r NewMessageRequest) Handle(publicAddr, uuid string, _ *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, sender *obj.User) {
 	// Fetch sender and room info
-	sender, room, err := getUserAndRoom(r.Salt, publicAddr, r.RoomID, users, rooms, logger)
+	sender, room, err := getUserAndRoom(uuid, publicAddr, r.RoomID, users, rooms, logger)
 	if err != nil {
 		response = res.NewErrorResponse(err.Error(), logger)
 		return

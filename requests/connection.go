@@ -12,12 +12,8 @@ import (
 
 // NewConnectionRequest is first request to the server.
 // It registers the user within the server.
-// The salt acts like a secret shared between the client and the server.
-// It will identify the client along with its IP. It must be static during
-// a session.
 type NewConnectionRequest struct {
 	Username string `json:"username"`
-	Salt     string `json:"salt"`
 }
 
 func (r NewConnectionRequest) Check() error {
@@ -26,16 +22,13 @@ func (r NewConnectionRequest) Check() error {
 	if r.Username == "" {
 		err = fmt.Errorf("%w; username is empty", err)
 	}
-	if r.Salt == "" {
-		err = fmt.Errorf("%w; salt is empty", err)
-	}
 
 	return err
 }
 
 // Handles a new connection from a client.
-func (r NewConnectionRequest) Handle(publicAddr string, conn *websocket.Conn, users *obj.Users, _ *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
-	user = users.AddUser(r.Username, publicAddr, r.Salt, conn, logger)
+func (r NewConnectionRequest) Handle(publicAddr, uuid string, conn *websocket.Conn, users *obj.Users, _ *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
+	user = users.AddUser(r.Username, publicAddr, uuid, conn, logger)
 
 	logger.Infow("connection request", "user", user.ID, "username", user.Name)
 
