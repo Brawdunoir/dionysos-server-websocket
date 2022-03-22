@@ -67,6 +67,7 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 		err := conn.ReadJSON(&req)
 		if err != nil {
 			slogger.Infow(err.Error(), "user", client.ID)
+			requests.DisconnectPeer(client, users, rooms, slogger)
 			break
 		}
 

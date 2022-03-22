@@ -8,6 +8,25 @@ import (
 	"go.uber.org/zap"
 )
 
+// Handle a disconnection from a client.
+func DisconnectPeer(client *obj.User, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response) {
+	users.RemoveUser(client.ID, logger)
+	if client.RoomID != "" {
+		room, err := rooms.Room(client.RoomID, logger)
+		if err != nil {
+			response = res.NewErrorResponse(err.Error(), logger)
+			return
+		}
+		rooms.RemovePeer(client.RoomID, client, logger)
+		notifyPeers(rooms, room, logger)
+	}
+
+	logger.Infow("disconnection", "user", client.ID, "username", client.Name)
+
+	response = res.NewResponse(res.SuccessResponse{RequestCode: DISCONNECTION}, logger)
+	return
+}
+
 func getUserByIdAndRoom(userID, roomID string, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (user *obj.User, room *obj.Room, err error) {
 	user, err = users.UserByID(userID, logger)
 	if err != nil {
