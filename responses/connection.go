@@ -5,7 +5,6 @@ import "encoding/json"
 // ConnectionResponse correspond to a successful connection/registration
 // of a user.
 type ConnectionResponse struct {
-	Username string `json:"username"`
 	UserID   string `json:"userId"`
 }
 

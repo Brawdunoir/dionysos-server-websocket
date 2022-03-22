@@ -6,6 +6,7 @@ import (
 
 	"github.com/Brawdunoir/dionysos-server/objects"
 	"github.com/Brawdunoir/dionysos-server/requests"
+	res "github.com/Brawdunoir/dionysos-server/responses"
 	"github.com/Brawdunoir/dionysos-server/utils"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -61,6 +62,7 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Add the client
 	client := users.AddUser(publicAddr, string(uuid), conn, slogger)
+	client.SendJSON(res.NewResponse(res.ConnectionResponse{UserID: client.ID}, slogger), slogger)
 
 	var req requests.Request
 	for {
