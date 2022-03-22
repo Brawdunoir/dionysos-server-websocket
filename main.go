@@ -51,8 +51,6 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	slogger.Info("new peer connected")
-
 	// Grab uuid generated and sent by client
 	_, uuid, err := conn.ReadMessage()
 	if err != nil {
@@ -68,7 +66,7 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 	for {
 		err := conn.ReadJSON(&req)
 		if err != nil {
-			slogger.Infow(err.Error(), "remoteAddr", r.RemoteAddr)
+			slogger.Infow(err.Error(), "user", client.ID)
 			break
 		}
 
