@@ -6,7 +6,6 @@ import (
 
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
-	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
 )
 
@@ -32,31 +31,31 @@ func (r JoinRoomRequest) Check() error {
 // Handles a join room demand from a client by contacting
 // the room's owner if the room is private.
 // Otherwise it just add the peer to the room.
-func (r JoinRoomRequest) Handle(publicAddr, uuid string, _ *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
+func (r JoinRoomRequest) Handle(client *obj.User, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response) {
 	// Fetch client, room and room owner info
-	user, owner, room, err := getUserAndRoomAndRoomOwner(uuid, publicAddr, r.RoomID, users, rooms, logger)
+	room, owner, err := getRoomAndRoomOwner(r.RoomID, users, rooms, logger)
 	if err != nil {
 		response = res.NewErrorResponse(err.Error(), logger)
 		return
 	}
 
-	if room.IsPeerPresent(user, logger) {
+	if room.IsPeerPresent(client, logger) {
 		response = res.NewErrorResponse("you seem to be already in room", logger)
 		return
 	}
 
 	if room.IsPrivate { // Private room: send request to room's owner for confirmation
-		ownerRequest := res.NewResponse(res.JoinRoomPendingResponse{RoomID: room.ID, RequesterUsername: user.Name, RequesterID: user.ID}, logger)
+		ownerRequest := res.NewResponse(res.JoinRoomPendingResponse{RoomID: room.ID, RequesterUsername: client.Name, RequesterID: client.ID}, logger)
 		owner.SendJSON(ownerRequest, logger)
 	} else { // Public room: Directly add the peer and notify everybody
-		err = addPeerAndNotify(user, rooms, room, logger)
+		err = addPeerAndNotify(client, rooms, room, logger)
 		if err != nil {
 			response = res.NewErrorResponse(err.Error(), logger)
 			return
 		}
 	}
 
-	logger.Infow("join room request", "user", user.ID, "username", user.Name, "room", room.ID, "roomname", room.Name)
+	logger.Infow("join room request", "user", client.ID, "username", client.Name, "room", room.ID, "roomname", room.Name)
 
 	response = res.NewResponse(res.JoinRoomResponse{RoomName: room.Name, RoomID: room.ID, IsPrivate: room.IsPrivate}, logger)
 	return

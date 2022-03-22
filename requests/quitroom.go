@@ -6,14 +6,12 @@ import (
 
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
-	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
 )
 
 // QuitRoomRequest is for removing a user from a room.
 type QuitRoomRequest struct {
 	Username string `json:"username"`
-	RoomID   string `json:"roomId"`
 }
 
 func (r QuitRoomRequest) Check() error {
@@ -22,9 +20,6 @@ func (r QuitRoomRequest) Check() error {
 	if r.Username == "" {
 		err = fmt.Errorf("%w; username is empty", err)
 	}
-	if r.RoomID == "" {
-		err = fmt.Errorf("%w; roomId is empty", err)
-	}
 
 	return err
 }
@@ -32,9 +27,9 @@ func (r QuitRoomRequest) Check() error {
 // Handles a quit request from a client.
 // It removes the user from the room and it destroys the room if the room is empty.
 // If the room is not empty it notify the remaining peers with an updated list of peers.
-func (r QuitRoomRequest) Handle(publicAddr, uuid string, _ *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
+func (r QuitRoomRequest) Handle(client *obj.User, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response) {
 	// Fetch client and room info
-	user, room, err := getUserAndRoom(uuid, publicAddr, r.RoomID, users, rooms, logger)
+	room, err := rooms.Room(client.RoomID, logger)
 	if err != nil {
 		response = res.NewErrorResponse(err.Error(), logger)
 		return
@@ -48,7 +43,7 @@ func (r QuitRoomRequest) Handle(publicAddr, uuid string, _ *websocket.Conn, user
 		}
 	}
 
-	logger.Infow("quit room request", "user", user.ID, "username", user.Name, "room", room.ID, "roomname", room.Name)
+	logger.Infow("quit room request", "user", client.ID, "username", client.Name, "room", room.ID, "roomname", room.Name)
 
 	response = res.NewResponse(res.SuccessResponse{RequestCode: res.CodeType(r.Code())}, logger)
 	return

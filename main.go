@@ -52,15 +52,17 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 
 	slogger.Info("new peer connected")
 
-	_, byteUuid, err := conn.ReadMessage()
+	// Grab uuid generated and sent by client
+	_, uuid, err := conn.ReadMessage()
 	if err != nil {
 		slogger.Error(err)
 		return
 	}
 
-	uuid := string(byteUuid)
-	var req requests.Request
+	// Add the client
+	client := users.AddUser(publicAddr, string(uuid), conn, slogger)
 
+	var req requests.Request
 	for {
 		err := conn.ReadJSON(&req)
 		if err != nil {
@@ -68,15 +70,9 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		response, user := req.Handle(publicAddr, uuid, conn, users, rooms, slogger)
+		response := req.Handle(client, users, rooms, slogger)
 
-		// Send the response using mutex for concurrent calls to WriteJSON if the user
-		// exists.
-		if user != nil {
-			user.SendJSON(response, slogger)
-		} else {
-			conn.WriteJSON(response)
-		}
-
+		// Send the response using mutex for concurrent calls to WriteJSON within Handlers.
+		client.SendJSON(response, slogger)
 	}
 }

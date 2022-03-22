@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/Brawdunoir/dionysos-server/constants"
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
-	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
 )
 
@@ -37,35 +37,26 @@ func (r JoinRoomAnswerRequest) Check() error {
 // to every other peer in the room the newcoming, in addition to
 // send the complete list of peer to the requester.
 // In the second case, signal to the requester that his request had been denied
-func (r JoinRoomAnswerRequest) Handle(publicAddr, uuid string, _ *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
+func (r JoinRoomAnswerRequest) Handle(client *obj.User, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response) {
 
 	if r.Accepted {
-		return handleAccept(r, uuid, publicAddr, users, rooms, logger)
+		return handleAccept(r, client, users, rooms, logger)
 	} else {
-		return handleDeny(r, uuid, publicAddr, users, rooms, logger)
+		return handleDeny(r, client, users, rooms, logger)
 	}
 }
 
-func handleAccept(r JoinRoomAnswerRequest, publicAddr, uuid string, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, owner *obj.User) {
+func handleAccept(r JoinRoomAnswerRequest, client *obj.User, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response) {
 	// Fetch requester and room info
 	requester, room, err := getUserByIdAndRoom(r.RequesterID, r.RoomID, users, rooms, logger)
 	if err != nil {
 		response = res.NewErrorResponse(err.Error(), logger)
 		return
-
-	}
-
-	// Get owner with uuid and publicAddr and not with helper function
-	// to verify from the uuid that he the right sender of request.
-	owner, err = users.User(uuid, publicAddr, logger)
-	if err != nil {
-		response = res.NewErrorResponse("room's owner is disconnected", logger)
-		return
 	}
 
 	// Assert user from this request is the legal owner of the room
-	if room.OwnerID != owner.ID {
-		response = res.NewErrorResponse("you do not have this permission, you are not the room's owner", logger)
+	if room.OwnerID != client.ID {
+		response = res.NewErrorResponse(constants.ERR_NO_PERM, logger)
 		return
 	}
 
@@ -76,19 +67,13 @@ func handleAccept(r JoinRoomAnswerRequest, publicAddr, uuid string, users *obj.U
 		return
 	}
 
-	logger.Infow("join room request", "user", requester.ID, "username", requester.Name, "owner", owner.ID, "ownername", owner.Name, "room", room.ID, "roomname", room.Name)
+	logger.Infow("join room request", "user", requester.ID, "username", requester.Name, "owner", client.ID, "ownername", client.Name, "room", room.ID, "roomname", room.Name)
 
 	response = res.NewResponse(res.SuccessResponse{RequestCode: JOIN_ROOM_ANSWER}, logger)
 	return
 }
 
-func handleDeny(r JoinRoomAnswerRequest, publicAddr, uuid string, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, owner *obj.User) {
-	owner, err := users.User(uuid, publicAddr, logger)
-	if err != nil {
-		response = res.NewErrorResponse("room's owner is disconnected", logger)
-		return
-	}
-
+func handleDeny(r JoinRoomAnswerRequest, client *obj.User, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response) {
 	requester, err := users.UserByID(r.RequesterID, logger)
 	if err != nil {
 		response = res.NewErrorResponse("you are not connected", logger)
@@ -98,7 +83,7 @@ func handleDeny(r JoinRoomAnswerRequest, publicAddr, uuid string, users *obj.Use
 	requesterResponse := res.NewResponse(res.DeniedResponse{RequestCode: JOIN_ROOM}, logger)
 	requester.SendJSON(requesterResponse, logger)
 
-	logger.Infow("join room request", "user", requester.ID, "username", requester.Name, "owner", owner.ID, "ownername", owner.Name, "room", r.RoomID)
+	logger.Infow("join room request", "user", requester.ID, "username", requester.Name, "owner", client.ID, "ownername", client.Name, "room", r.RoomID)
 
 	response = res.NewResponse(res.SuccessResponse{RequestCode: JOIN_ROOM_ANSWER}, logger)
 	return

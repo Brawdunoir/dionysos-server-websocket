@@ -5,7 +5,6 @@ import (
 
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
-	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
 )
 
@@ -21,19 +20,13 @@ func (r DisconnectionRequest) Check() error {
 }
 
 // Handles a new connection from a client.
-func (r DisconnectionRequest) Handle(publicAddr, uuid string, conn *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
-	user, err := users.User(uuid, publicAddr, logger)
-	if err != nil {
-		response = res.NewErrorResponse(err.Error(), logger)
-		return
+func (r DisconnectionRequest) Handle(client *obj.User, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response) {
+	users.RemoveUser(client.ID, logger)
+	if client.RoomID != "" {
+		rooms.RemovePeer(client.RoomID, client, logger)
 	}
 
-	users.RemoveUser(user.ID, logger)
-	if user.RoomID != "" {
-		rooms.RemovePeer(user.RoomID, user, logger)
-	}
-
-	logger.Infow("disconnection request", "user", user.ID, "username", user.Name)
+	logger.Infow("disconnection request", "user", client.ID, "username", client.Name)
 
 	response = res.NewResponse(res.SuccessResponse{RequestCode: res.CodeType(r.Code())}, logger)
 	return

@@ -6,7 +6,6 @@ import (
 
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
-	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
 )
 
@@ -27,23 +26,17 @@ func (r ChangeUsernameRequest) Check() error {
 }
 
 // Handles a username changement request from a client.
-func (r ChangeUsernameRequest) Handle(publicAddr, uuid string, _ *websocket.Conn, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response, user *obj.User) {
+func (r ChangeUsernameRequest) Handle(client *obj.User, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response) {
 	// Fetch user an rename
-	user, err := users.User(uuid, publicAddr, logger)
-	if err != nil {
-		response = res.NewErrorResponse(err.Error(), logger)
-		return
-	}
-
-	err = users.ChangeUsername(user.ID, r.NewUsername, logger)
+	err := users.ChangeUsername(client.ID, r.NewUsername, logger)
 	if err != nil {
 		response = res.NewErrorResponse(err.Error(), logger)
 		return
 	}
 
 	// If connected to a room, notify peers of the changement
-	if user.RoomID != "" {
-		room, err := rooms.Room(user.RoomID, logger)
+	if client.RoomID != "" {
+		room, err := rooms.Room(client.RoomID, logger)
 		if err != nil {
 			response = res.NewErrorResponse(err.Error(), logger)
 			return
@@ -52,7 +45,7 @@ func (r ChangeUsernameRequest) Handle(publicAddr, uuid string, _ *websocket.Conn
 		notifyPeers(rooms, room, logger)
 	}
 
-	logger.Infow("change username request", "user", user.ID, "username", user.Name)
+	logger.Infow("change username request", "user", client.ID, "username", client.Name)
 
 	response = res.NewResponse(res.ChangeUsernameResponse{Username: r.NewUsername}, logger)
 	return

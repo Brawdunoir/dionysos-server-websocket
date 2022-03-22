@@ -35,11 +35,12 @@ func (u *User) SendJSON(json interface{}, logger *zap.SugaredLogger) {
 }
 
 // generateUserID generates an user ID based on a public address and a uuid send by the client
-func generateUserID(publicAddr, uuid string) string {
+func GenerateUserID(publicAddr, uuid string) string {
 	return utils.GenerateStringHash(publicAddr + uuid)
 }
 
 // newUser creates a new user
-func NewUser(username, publicAddr, uuid string, conn *websocket.Conn) *User {
-	return &User{ID: generateUserID(publicAddr, uuid), RoomID: "", Name: username, PublicIP: publicAddr, ConnMutex: sync.Mutex{}, Conn: conn}
+func NewUser(publicAddr, uuid string, conn *websocket.Conn) *User {
+	id := GenerateUserID(publicAddr, uuid)
+	return &User{ID: id, RoomID: "", Name: id, PublicIP: publicAddr, ConnMutex: sync.Mutex{}, Conn: conn}
 }
