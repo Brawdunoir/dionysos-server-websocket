@@ -39,6 +39,14 @@ func (users *Users) AddUser(username, publicAddr, salt string, conn *websocket.C
 	return user
 }
 
+// removeUser remove a user from users.
+func (users *Users) RemoveUser(userID string, logger *zap.SugaredLogger) {
+	users.mu.Lock()
+	delete(users.members, userID)
+	users.mu.Unlock()
+	logger.Infow("remove user", "user", userID)
+}
+
 func (users *Users) ChangeUsername(userID, newUsername string, logger *zap.SugaredLogger) error {
 	user, err := users.UserByID(userID, logger)
 	if err != nil {
