@@ -41,8 +41,6 @@ func (r Request) Handle(publicAddr, uuid string, conn *websocket.Conn, users *ob
 
 	// Would be better to use a map but it is kind of hard with current r.Handle method…
 	switch r.Code {
-	case NEW_CONNECTION:
-		req, err = createNewConnectionRequest(r.Payload)
 	case NEW_ROOM:
 		req, err = createNewRoomRequest(r.Payload)
 	case JOIN_ROOM:

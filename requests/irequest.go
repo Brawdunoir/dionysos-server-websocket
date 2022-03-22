@@ -11,8 +11,6 @@ type CodeType string
 
 // Requests codes
 const (
-	// Register a new user to the server and return the user's ID in the payload.
-	NEW_CONNECTION = "NCO"
 	// Anregister a new user to the server and return the user's ID in the payload.
 	DISCONNECTION = "DIS"
 	// Register a new room to the server and return the room's ID in the payload.
