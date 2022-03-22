@@ -15,7 +15,6 @@ type User struct {
 	ID        string          `json:"id"`
 	Name      string          `json:"name"`
 	RoomID    string          `json:"-"`
-	Salt      string          `json:"-"`
 	PublicIP  string          `json:"-"`
 	Conn      *websocket.Conn `json:"-"`
 	ConnMutex sync.Mutex      `json:"-"`
@@ -42,5 +41,5 @@ func generateUserID(publicAddr, salt string) string {
 
 // newUser creates a new user
 func NewUser(username, publicAddr, salt string, conn *websocket.Conn) *User {
-	return &User{ID: generateUserID(publicAddr, salt), RoomID: "", Salt: salt, Name: username, PublicIP: publicAddr, ConnMutex: sync.Mutex{}, Conn: conn}
+	return &User{ID: generateUserID(publicAddr, salt), RoomID: "", Name: username, PublicIP: publicAddr, ConnMutex: sync.Mutex{}, Conn: conn}
 }
