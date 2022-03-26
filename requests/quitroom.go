@@ -29,21 +29,11 @@ func (r QuitRoomRequest) Check() error {
 // If the room is not empty it notify the remaining peers with an updated list of peers.
 func (r QuitRoomRequest) Handle(client *obj.User, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response) {
 	// Fetch client and room info
-	room, err := rooms.Room(client.RoomID, logger)
+	err := removeUserFromRoom(client, users, rooms, logger)
 	if err != nil {
 		response = res.NewErrorResponse(err.Error(), logger)
 		return
 	}
-
-	if room != nil {
-		err = notifyPeers(rooms, room, logger)
-		if err != nil {
-			response = res.NewErrorResponse(err.Error(), logger)
-			return
-		}
-	}
-
-	logger.Infow("quit room request", "user", client.ID, "username", client.Name, "room", room.ID, "roomname", room.Name)
 
 	response = res.NewResponse(res.SuccessResponse{RequestCode: res.CodeType(r.Code())}, logger)
 	return

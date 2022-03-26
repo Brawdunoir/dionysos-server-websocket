@@ -10,21 +10,32 @@ import (
 
 // Handle a disconnection from a client.
 func DisconnectPeer(client *obj.User, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response) {
-	users.RemoveUser(client.ID, logger)
-	if client.RoomID != "" {
-		room, err := rooms.Room(client.RoomID, logger)
-		if err != nil {
-			response = res.NewErrorResponse(err.Error(), logger)
-			return
-		}
-		rooms.RemovePeer(client.RoomID, client, logger)
-		notifyPeers(rooms, room, logger)
+	err := removeUserFromRoom(client, users, rooms, logger)
+	if err != nil {
+		response = res.NewErrorResponse(err.Error(), logger)
+		return
 	}
+	users.RemoveUser(client.ID, logger)
 
 	logger.Infow("disconnection", "user", client.ID, "username", client.Name)
 
 	response = res.NewResponse(res.SuccessResponse{RequestCode: DISCONNECTION}, logger)
 	return
+}
+
+// removeUserFromRoom remove the user from the room and
+func removeUserFromRoom(client *obj.User, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) error {
+	if client.RoomID == "" {
+		logger.Debugw("not part of any room", "user", client.ID, "username", client.Name)
+	}
+	room, err := rooms.RemovePeer(client.RoomID, client, logger)
+	if err != nil {
+		return err
+	}
+
+	notifyPeers(rooms, room, logger)
+
+	return nil
 }
 
 func getUserByIdAndRoom(userID, roomID string, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (user *obj.User, room *obj.Room, err error) {
@@ -72,10 +83,15 @@ func addPeerAndNotify(requester *obj.User, rooms *obj.Rooms, room *obj.Room, log
 }
 
 // Notify peers that the room peer list has changed
+// Take care of empty or nil room
 func notifyPeers(rooms *obj.Rooms, room *obj.Room, logger *zap.SugaredLogger) error {
+	if room == nil || len(room.Peers) == 0 {
+		logger.Debug("room is empty or does not exists")
+		return errors.New("room is empty or does not exists")
+	}
 	peers, err := rooms.Peers(room.ID, logger)
 	if err != nil {
-		return errors.New("error when retrieving peers in room")
+		return err
 	}
 
 	// Send updated peers list to all peers
