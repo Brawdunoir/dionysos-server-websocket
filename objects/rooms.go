@@ -44,9 +44,8 @@ func (rooms *Rooms) AddRoom(roomName string, owner *User, isPrivate bool, logger
 func (rooms *Rooms) removeRoom(room *Room, logger *zap.SugaredLogger) {
 	rooms.mu.Lock()
 	delete(rooms.saloons, room.ID)
-	logger.Infow("remove room", "room", room.ID)
-	delete(rooms.saloons, roomID)
 	rooms.mu.Unlock()
+	logger.Infow("remove room", "room", room.ID)
 }
 
 // AddPeer add a peer to an existing room and sets roomID for the user
