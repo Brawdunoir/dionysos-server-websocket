@@ -58,7 +58,7 @@ func (r *Room) RemovePeer(u *User, logger *zap.SugaredLogger) error {
 			r.mu.Unlock()
 			u.RoomID = ""
 			logger.Debugw("remove peer from room", "user", u.ID, "username", u.Name, "room", r.ID, "roomname", r.Name)
-			if u.ID == r.OwnerID {
+			if u.ID == r.OwnerID && len(r.Peers) > 0 {
 				newOwner := r.Peers[0]
 				r.SetOwnerID(newOwner.ID)
 				logger.Debugw("change owner of room", "oldOwner", u.ID, "oldOwnername", u.Name, "newOwner", newOwner.ID, "newOwnername", newOwner.Name, "room", r.ID, "roomname", r.Name)
