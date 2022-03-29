@@ -1,15 +1,14 @@
 package responses
 
-import "encoding/json"
-
+// SuccessReponse is a specific response, it only echo its RequestCode.
 type SuccessResponse struct {
 	RequestCode CodeType `json:"requestCode"`
 }
 
 func (r SuccessResponse) Code() CodeType {
-	return SUCCESS
+	return r.RequestCode
 }
 
 func (r SuccessResponse) Marshal() ([]byte, error) {
-	return json.Marshal(r)
+	return nil, nil
 }

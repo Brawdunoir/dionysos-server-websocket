@@ -4,8 +4,6 @@ type CodeType string
 
 // Response possible codes
 const (
-	// Basic success response
-	SUCCESS = "SUC"
 	// Basic error response
 	ERROR = "ERR"
 	// New connection response
