@@ -30,7 +30,7 @@ func (r NewRoomRequest) Check() error {
 func (r NewRoomRequest) Handle(client *obj.User, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response) {
 	room := rooms.AddRoom(r.RoomName, client, r.IsPrivate, logger)
 
-	logger.Infow("new room request", "owner", client.ID, "ownername", client.Name, "room", room.ID, "roomname", room.Name)
+	logger.Infow("new room request", "owner", client.ID, "ownername", client.Name, "room", room.ID, "roomname", room.Name, "private", r.IsPrivate)
 
 	response = res.NewResponse(res.NewRoomResponse{RoomID: room.ID, RoomName: r.RoomName}, logger)
 	return
