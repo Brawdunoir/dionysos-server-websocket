@@ -24,6 +24,8 @@ const (
 	CHANGE_USERNAME = "CHU"
 	// Quit a room
 	QUIT_ROOM = "QRO"
+	// Ask to kick a peer
+	KICK_PEER = "KPE"
 )
 
 type IRequest interface {

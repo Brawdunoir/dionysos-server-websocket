@@ -52,6 +52,8 @@ func (r Request) Handle(client *obj.User, users *obj.Users, rooms *obj.Rooms, lo
 		req, err = createChangeUsernameRequest(r.Payload)
 	case QUIT_ROOM:
 		req, err = createQuitRoomRequest(r.Payload)
+	case KICK_PEER:
+		req, err = createKickPeerRequest(r.Payload)
 	default:
 		response = res.NewErrorResponse(fmt.Sprintf("unknown code: %s", r.Code), logger)
 		return
