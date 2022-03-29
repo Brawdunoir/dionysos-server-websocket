@@ -23,7 +23,7 @@ func DisconnectPeer(client *obj.User, users *obj.Users, rooms *obj.Rooms, logger
 	return
 }
 
-// removeUserFromRoom remove the user from the room and
+// removeUserFromRoom remove the user from the room and notify the remaining peers of the changement.
 func removeUserFromRoom(client *obj.User, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) error {
 	if client.RoomID == "" {
 		logger.Debugw("not part of any room", "user", client.ID, "username", client.Name)
