@@ -13,7 +13,6 @@ import (
 // JoinRoomAnswerRequest indicates if a user (Requester) is
 // accepted or not in the room
 type JoinRoomAnswerRequest struct {
-	RoomID      string `json:"roomId"`
 	RequesterID string `json:"requesterId"`
 	Accepted    bool   `json:"accepted"`
 }
@@ -21,9 +20,6 @@ type JoinRoomAnswerRequest struct {
 func (r JoinRoomAnswerRequest) Check() error {
 	var err error
 
-	if r.RoomID == "" {
-		err = fmt.Errorf("%w; roomId is empty", err)
-	}
 	if r.RequesterID == "" {
 		err = fmt.Errorf("%w; requesterId is empty", err)
 	}
@@ -47,7 +43,7 @@ func (r JoinRoomAnswerRequest) Handle(client *obj.User, users *obj.Users, rooms 
 
 func handleAccept(r JoinRoomAnswerRequest, client *obj.User, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response) {
 	// Fetch requester and room info
-	requester, room, err := getUserByIdAndRoom(r.RequesterID, r.RoomID, users, rooms, logger)
+	requester, room, err := getUserByIdAndRoom(r.RequesterID, client.RoomID, users, rooms, logger)
 	if err != nil {
 		response = res.NewErrorResponse(err.Error(), logger)
 		return
@@ -82,7 +78,7 @@ func handleDeny(r JoinRoomAnswerRequest, client *obj.User, users *obj.Users, roo
 	requesterResponse := res.NewResponse(res.DeniedResponse{RequestCode: JOIN_ROOM}, logger)
 	requester.SendJSON(requesterResponse, logger)
 
-	logger.Infow("join room request", "user", requester.ID, "username", requester.Name, "owner", client.ID, "ownername", client.Name, "room", r.RoomID)
+	logger.Infow("join room request", "user", requester.ID, "username", requester.Name, "owner", client.ID, "ownername", client.Name, "room", client.RoomID)
 
 	response = res.NewResponse(res.SuccessResponse{RequestCode: res.CodeType(r.Code())}, logger)
 	return
