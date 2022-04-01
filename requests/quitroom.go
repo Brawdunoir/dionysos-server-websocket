@@ -25,6 +25,8 @@ func (r QuitRoomRequest) Handle(client *obj.User, users *obj.Users, rooms *obj.R
 		return
 	}
 
+	logger.Infow("quit room request success", "owner", client.ID, "ownername", client.Name)
+
 	response = res.NewResponse(res.SuccessResponse{RequestCode: res.CodeType(r.Code())}, logger)
 	return
 }

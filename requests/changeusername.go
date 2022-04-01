@@ -34,7 +34,7 @@ func (r ChangeUsernameRequest) Handle(client *obj.User, users *obj.Users, rooms 
 		notifyPeers(rooms, room, logger)
 	}
 
-	logger.Infow("change username request", "user", client.ID, "username", client.Name)
+	logger.Infow("change username request success", "user", client.ID, "username", client.Name)
 
 	response = res.NewResponse(res.ChangeUsernameResponse{Username: r.NewUsername}, logger)
 	return

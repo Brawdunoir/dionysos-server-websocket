@@ -51,7 +51,7 @@ func handleAccept(r JoinRoomAnswerRequest, client *obj.User, users *obj.Users, r
 		return
 	}
 
-	logger.Infow("join room request", "user", requester.ID, "username", requester.Name, "owner", client.ID, "ownername", client.Name, "room", room.ID, "roomname", room.Name)
+	logger.Infow("join room request success", "user", requester.ID, "username", requester.Name, "owner", client.ID, "ownername", client.Name, "room", room.ID, "roomname", room.Name)
 
 	response = res.NewResponse(res.SuccessResponse{RequestCode: res.CodeType(r.Code())}, logger)
 	return
@@ -67,7 +67,7 @@ func handleDeny(r JoinRoomAnswerRequest, client *obj.User, users *obj.Users, roo
 	requesterResponse := res.NewResponse(res.DeniedResponse{RequestCode: JOIN_ROOM}, logger)
 	requester.SendJSON(requesterResponse, logger)
 
-	logger.Infow("join room request", "user", requester.ID, "username", requester.Name, "owner", client.ID, "ownername", client.Name, "room", client.RoomID)
+	logger.Infow("join room request success", "user", requester.ID, "username", requester.Name, "owner", client.ID, "ownername", client.Name, "room", client.RoomID)
 
 	response = res.NewResponse(res.SuccessResponse{RequestCode: res.CodeType(r.Code())}, logger)
 	return

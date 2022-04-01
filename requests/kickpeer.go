@@ -36,7 +36,7 @@ func (r KickPeerRequest) Handle(client *obj.User, users *obj.Users, rooms *obj.R
 		return
 	}
 
-	logger.Infow("kick peer request", "requester", client.ID, "requesterUsername", client.Name, "kickedPeer", peer.ID, "kickedPeerUsername", peer.Name, "room", room.ID, "roomname", room.Name)
+	logger.Infow("kick peer request success", "requester", client.ID, "requesterUsername", client.Name, "kickedPeer", peer.ID, "kickedPeerUsername", peer.Name, "room", room.ID, "roomname", room.Name)
 
 	response = res.NewResponse(res.SuccessResponse{RequestCode: res.CodeType(r.Code())}, logger)
 	return

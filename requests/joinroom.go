@@ -43,7 +43,7 @@ func (r JoinRoomRequest) Handle(client *obj.User, users *obj.Users, rooms *obj.R
 		}
 	}
 
-	logger.Infow("join room request", "user", client.ID, "username", client.Name, "room", room.ID, "roomname", room.Name)
+	logger.Infow("join room request success", "user", client.ID, "username", client.Name, "room", room.ID, "roomname", room.Name)
 
 	response = res.NewResponse(res.JoinRoomResponse{RoomName: room.Name, RoomID: room.ID, IsPrivate: room.IsPrivate}, logger)
 	return

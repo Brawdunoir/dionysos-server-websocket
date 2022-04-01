@@ -28,7 +28,7 @@ func (r NewMessageRequest) Handle(client *obj.User, users *obj.Users, rooms *obj
 	mes := obj.NewMessage(client.ID, client.Name, r.Content)
 	room.SendJSONToPeers(mes, logger)
 
-	logger.Infow("new message request", "user", client.ID, "username", client.Name, "room", room.ID, "roomname", room.Name)
+	logger.Infow("new message request success", "user", client.ID, "username", client.Name, "room", room.ID, "roomname", room.Name)
 
 	response = res.NewResponse(res.SuccessResponse{RequestCode: res.CodeType(r.Code())}, logger)
 	return
