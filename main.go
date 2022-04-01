@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/Brawdunoir/dionysos-server/objects"
 	"github.com/Brawdunoir/dionysos-server/requests"
@@ -13,14 +14,31 @@ import (
 	"go.uber.org/zap"
 )
 
-var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }} // use default options
-var users = objects.NewUsers()                                                             // list of users connected
-var rooms = objects.NewRooms()                                                             // list of rooms registered
+// websocket upgrader
+var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
+
+// list of users connected
+var users = objects.NewUsers()
+
+// list of rooms registered
+var rooms = objects.NewRooms()
+
+// zap super logger
 var slogger *zap.SugaredLogger
 
 func main() {
+	var err error
+
+	// Load environment variables
+	utils.LoadEnvironment()
+
 	// Start the logger
-	logger, err := zap.NewDevelopment()
+	var logger *zap.Logger
+	if os.Getenv(utils.KEY_ENVIRONMENT) == "PROD" {
+		logger, err = zap.NewProduction()
+	} else {
+		logger, err = zap.NewDevelopment()
+	}
 	if err != nil {
 		log.Fatalf("can't initialize zap logger: %v", err)
 	}

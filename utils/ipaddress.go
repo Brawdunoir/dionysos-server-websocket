@@ -5,14 +5,19 @@ import (
 	"errors"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/Brawdunoir/dionysos-server/constants"
 )
 
-// Get client public IP of an http request.
+// Get client public IP of an http request on production environment, proxy address in dev environments.
 // Note: The client can set the X-Forwarded-For or the X-Real-IP header to any arbitrary value it wants.
 func GetIPAdress(r *http.Request) (string, error) {
+	if os.Getenv(KEY_ENVIRONMENT) != "PROD" {
+		return r.RemoteAddr, nil
+	}
+
 	for _, h := range []string{"X-Forwarded-For", "X-Real-Ip"} {
 		addresses := strings.Split(r.Header.Get(h), ",")
 		// march from right to left until we get a public address
