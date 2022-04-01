@@ -3,6 +3,7 @@ package requests
 import (
 	"encoding/json"
 
+	"github.com/Brawdunoir/dionysos-server/constants"
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
 	"go.uber.org/zap"
@@ -28,7 +29,7 @@ func (r JoinRoomRequest) Handle(client *obj.User, users *obj.Users, rooms *obj.R
 	}
 
 	if room.IsPeerPresent(client, logger) {
-		response = res.NewErrorResponse("you seem to be already in room", logger)
+		response = res.NewErrorResponse(constants.ERR_PEER_ALREADY_IN_ROOM, logger)
 		return
 	}
 

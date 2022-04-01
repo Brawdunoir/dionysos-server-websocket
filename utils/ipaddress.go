@@ -6,6 +6,8 @@ import (
 	"net"
 	"net/http"
 	"strings"
+
+	"github.com/Brawdunoir/dionysos-server/constants"
 )
 
 // Get client public IP of an http request.
@@ -26,7 +28,7 @@ func GetIPAdress(r *http.Request) (string, error) {
 			return ip, nil
 		}
 	}
-	return "", errors.New("")
+	return "", errors.New(constants.ERR_IP)
 }
 
 //ipRange - a structure that holds the start and end of a range of ip addresses

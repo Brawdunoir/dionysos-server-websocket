@@ -4,6 +4,7 @@ import (
 	"errors"
 	"sync"
 
+	"github.com/Brawdunoir/dionysos-server/constants"
 	"github.com/Brawdunoir/dionysos-server/utils"
 	"go.uber.org/zap"
 )
@@ -29,7 +30,7 @@ func (r *Room) AddPeer(u *User, logger *zap.SugaredLogger) error {
 
 	if ok := r.IsPeerPresent(u, logger); ok {
 		logger.Errorw("add peer failed, user is already in the room", "user", u.ID, "username", u.Name, "room", r.ID, "roomname", r.Name)
-		return errors.New("peer already exists in room")
+		return errors.New(constants.ERR_PEER_ALREADY_IN_ROOM)
 	}
 
 	r.mu.Lock()
@@ -67,7 +68,7 @@ func (r *Room) RemovePeer(u *User, logger *zap.SugaredLogger) error {
 		}
 	}
 	logger.Debugw("remove peer failed, the user cannot be found", "user", u.ID, "username", u.Name, "room", r.ID, "roomname", r.Name)
-	return errors.New("user not in the room")
+	return errors.New(constants.ERR_USER_NOT_IN_ROOM)
 }
 
 // IsPeerPresent evaluates if a certain user is in the room

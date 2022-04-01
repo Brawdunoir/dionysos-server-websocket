@@ -3,6 +3,7 @@ package requests
 import (
 	"errors"
 
+	"github.com/Brawdunoir/dionysos-server/constants"
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
 	"go.uber.org/zap"
@@ -87,7 +88,7 @@ func addPeerAndNotify(requester *obj.User, rooms *obj.Rooms, room *obj.Room, log
 func notifyPeers(rooms *obj.Rooms, room *obj.Room, logger *zap.SugaredLogger) error {
 	if room == nil || len(room.Peers) == 0 {
 		logger.Debug("room is empty or does not exists")
-		return errors.New("room is empty or does not exists")
+		return errors.New(constants.ERR_ROOM_NIL)
 	}
 	peers, err := rooms.Peers(room.ID, logger)
 	if err != nil {

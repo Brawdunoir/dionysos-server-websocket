@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/Brawdunoir/dionysos-server/constants"
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
 	"go.uber.org/zap"
@@ -56,11 +57,11 @@ func (r Request) Handle(client *obj.User, users *obj.Users, rooms *obj.Rooms, lo
 	case KICK_PEER:
 		req, err = createKickPeerRequest(r.Payload)
 	default:
-		response = res.NewErrorResponse(fmt.Sprintf("unknown code: %s", r.Code), logger)
+		response = res.NewErrorResponse(fmt.Sprint(constants.ERR_UNKNOW_CODE, ": ", r.Code), logger)
 		return
 	}
 	if err != nil {
-		response = res.NewErrorResponse("payload json not valid", logger)
+		response = res.NewErrorResponse(constants.ERR_INVALID_PAYLOAD, logger)
 		return
 	}
 

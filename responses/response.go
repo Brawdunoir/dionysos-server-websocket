@@ -3,6 +3,7 @@ package responses
 import (
 	"encoding/json"
 
+	"github.com/Brawdunoir/dionysos-server/constants"
 	"go.uber.org/zap"
 )
 
@@ -16,9 +17,8 @@ type Response struct {
 // NewResponse return a well formatted response.
 func NewResponse(r IResponse, logger *zap.SugaredLogger) Response {
 	if r.Code() == "" {
-		err := "not a valid IResponse codeType"
 		logger.Errorw("response does not implement IResponse interface", "reponse", r)
-		return NewErrorResponse(err, logger)
+		return NewErrorResponse(constants.ERR_SERVER_SIDE, logger)
 	}
 
 	return createResponse(r, logger)

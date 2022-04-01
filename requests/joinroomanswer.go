@@ -60,7 +60,7 @@ func handleAccept(r JoinRoomAnswerRequest, client *obj.User, users *obj.Users, r
 func handleDeny(r JoinRoomAnswerRequest, client *obj.User, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) (response res.Response) {
 	requester, err := users.UserByID(r.RequesterID, logger)
 	if err != nil {
-		response = res.NewErrorResponse("you are not connected", logger)
+		response = res.NewErrorResponse(err.Error(), logger)
 		return
 	}
 
