@@ -2,7 +2,6 @@ package requests
 
 import (
 	"encoding/json"
-	"fmt"
 
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
@@ -12,18 +11,8 @@ import (
 // NewRoomRequest creates a new room within the server and
 // send a NewRoomResponse has a confirmation for the creation.
 type NewRoomRequest struct {
-	RoomName  string `json:"roomName"`
+	RoomName  string `json:"roomName" validate:"min=3,max=20"`
 	IsPrivate bool   `json:"isPrivate"`
-}
-
-func (r NewRoomRequest) Check() error {
-	var err error
-
-	if r.RoomName == "" {
-		err = fmt.Errorf("%w; roomName is empty", err)
-	}
-
-	return err
 }
 
 // Handles a new room demand from a client.

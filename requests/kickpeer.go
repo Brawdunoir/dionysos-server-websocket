@@ -2,7 +2,6 @@ package requests
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/Brawdunoir/dionysos-server/constants"
 	obj "github.com/Brawdunoir/dionysos-server/objects"
@@ -12,17 +11,7 @@ import (
 
 // KickPeerRequest allows the room's owner to remove a peer from his room.
 type KickPeerRequest struct {
-	PeerID string `json:"peerId"`
-}
-
-func (r KickPeerRequest) Check() error {
-	var err error
-
-	if r.PeerID == "" {
-		err = fmt.Errorf("%w; peerId is empty", err)
-	}
-
-	return err
+	PeerID string `json:"peerId" validate:"len=40"`
 }
 
 // Handles a kick peer in a room.

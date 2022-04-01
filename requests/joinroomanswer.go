@@ -2,7 +2,6 @@ package requests
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/Brawdunoir/dionysos-server/constants"
 	obj "github.com/Brawdunoir/dionysos-server/objects"
@@ -13,18 +12,8 @@ import (
 // JoinRoomAnswerRequest indicates if a user (Requester) is
 // accepted or not in the room
 type JoinRoomAnswerRequest struct {
-	RequesterID string `json:"requesterId"`
+	RequesterID string `json:"requesterId" validate:"len=40"`
 	Accepted    bool   `json:"accepted"`
-}
-
-func (r JoinRoomAnswerRequest) Check() error {
-	var err error
-
-	if r.RequesterID == "" {
-		err = fmt.Errorf("%w; requesterId is empty", err)
-	}
-
-	return err
 }
 
 // Grant or refuse access to room.

@@ -7,10 +7,11 @@ import (
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
 	"go.uber.org/zap"
+	"gopkg.in/validator.v2"
 )
 
 type Request struct {
-	Code    CodeType        `json:"code"`
+	Code    CodeType        `json:"code" validate:"len=3"`
 	Payload json.RawMessage `json:"payload"`
 }
 
@@ -63,7 +64,7 @@ func (r Request) Handle(client *obj.User, users *obj.Users, rooms *obj.Rooms, lo
 		return
 	}
 
-	err = req.Check()
+	err = validator.Validate(req)
 	if err != nil {
 		response = res.NewErrorResponse(err.Error(), logger)
 		return

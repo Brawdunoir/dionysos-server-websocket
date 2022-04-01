@@ -29,7 +29,6 @@ const (
 )
 
 type IRequest interface {
-	Check() error
 	Handle(client *obj.User, users *obj.Users, rooms *obj.Rooms, logger *zap.SugaredLogger) responses.Response
 	Code() CodeType
 }

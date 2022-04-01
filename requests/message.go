@@ -2,7 +2,6 @@ package requests
 
 import (
 	"encoding/json"
-	"fmt"
 
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
@@ -13,17 +12,7 @@ import (
 // No message is store on the server side, the message must be stored
 // on client side.
 type NewMessageRequest struct {
-	Content string `json:"content"`
-}
-
-func (r NewMessageRequest) Check() error {
-	var err error
-
-	if r.Content == "" {
-		err = fmt.Errorf("%w; content is empty", err)
-	}
-
-	return err
+	Content string `json:"content" validate:"nonzero"`
 }
 
 // Handles a new message from a client by forwarding it to all peers.

@@ -2,7 +2,6 @@ package requests
 
 import (
 	"encoding/json"
-	"fmt"
 
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
@@ -12,17 +11,7 @@ import (
 // ChangeUsernameRequest allows a user to change its username.
 // The changement will trigger a RoomUserList update.
 type ChangeUsernameRequest struct {
-	NewUsername string `json:"newUsername"`
-}
-
-func (r ChangeUsernameRequest) Check() error {
-	var err error
-
-	if r.NewUsername == "" {
-		err = fmt.Errorf("%w; newUsername is empty", err)
-	}
-
-	return err
+	NewUsername string `json:"newUsername" validate:"min=3,max=20"`
 }
 
 // Handles a username changement request from a client.

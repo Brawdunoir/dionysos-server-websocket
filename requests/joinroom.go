@@ -2,7 +2,6 @@ package requests
 
 import (
 	"encoding/json"
-	"fmt"
 
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
@@ -14,18 +13,7 @@ import (
 // This way, the owner answer Yes or No to the request
 // and join the RequesterID to his answer.
 type JoinRoomRequest struct {
-	RoomID string `json:"roomId"`
-}
-
-func (r JoinRoomRequest) Check() error {
-	var err error
-
-	if r.RoomID == "" {
-		err = fmt.Errorf("%w; roomId is empty", err)
-	}
-	// RequesterID can be empty since it is replaced by server
-
-	return err
+	RoomID string `json:"roomId" validate:"len=40"`
 }
 
 // Handles a join room demand from a client by contacting

@@ -12,10 +12,6 @@ import (
 type QuitRoomRequest struct {
 }
 
-func (r QuitRoomRequest) Check() error {
-	return nil
-}
-
 // Handles a quit request from a client.
 // It removes the user from the room and it destroys the room if the room is empty.
 // If the room is not empty it notify the remaining peers with an updated list of peers.
