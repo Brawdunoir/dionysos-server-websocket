@@ -2,7 +2,6 @@ package requests
 
 import (
 	"encoding/json"
-	"fmt"
 
 	obj "github.com/Brawdunoir/dionysos-server/objects"
 	res "github.com/Brawdunoir/dionysos-server/responses"
@@ -11,17 +10,10 @@ import (
 
 // QuitRoomRequest is for removing a user from a room.
 type QuitRoomRequest struct {
-	Username string `json:"username"`
 }
 
 func (r QuitRoomRequest) Check() error {
-	var err error
-
-	if r.Username == "" {
-		err = fmt.Errorf("%w; username is empty", err)
-	}
-
-	return err
+	return nil
 }
 
 // Handles a quit request from a client.
