@@ -101,7 +101,7 @@ func initializeLogger() (*zap.Logger, error) {
 		config.EncodeTime = zapcore.ISO8601TimeEncoder
 		fileEncoder := zapcore.NewJSONEncoder(config)
 		consoleEncoder := zapcore.NewConsoleEncoder(config)
-		logFile, err := os.OpenFile("log.json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		logFile, err := os.OpenFile("logs/log.json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		defaultLogLevel := zapcore.InfoLevel
 		core := zapcore.NewTee(
 			zapcore.NewCore(fileEncoder, zapcore.AddSync(logFile), defaultLogLevel),
