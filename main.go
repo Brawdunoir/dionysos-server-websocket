@@ -12,6 +12,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 // websocket upgrader
@@ -24,6 +25,7 @@ var users = objects.NewUsers()
 var rooms = objects.NewRooms()
 
 // zap super logger
+var logger *zap.Logger
 var slogger *zap.SugaredLogger
 
 func main() {
@@ -33,19 +35,14 @@ func main() {
 	utils.LoadEnvironment()
 
 	// Start the logger
-	var logger *zap.Logger
-	if os.Getenv(utils.KEY_ENVIRONMENT) == "PROD" {
-		logger, err = zap.NewProduction()
-	} else {
-		logger, err = zap.NewDevelopment()
-	}
+	logger, err := initializeLogger()
 	if err != nil {
-		log.Fatalf("can't initialize zap logger: %v", err)
+		log.Fatal("cannot initialize zap logger: ", err)
 	}
 	defer logger.Sync()
 	slogger = logger.Sugar()
 
-	// Start listening for websocket clients on port 8080
+	// Listen for websocket clients on port 8080
 	slogger.Info("starting…")
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", socketHandler)
@@ -69,7 +66,7 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	// Grab uuid generated and sent by client
+	// Grab uuid sent by client
 	_, uuid, err := conn.ReadMessage()
 	if err != nil {
 		slogger.Error(err)
@@ -94,4 +91,27 @@ func socketHandler(w http.ResponseWriter, r *http.Request) {
 		// Send the response using mutex for concurrent calls to WriteJSON within Handlers.
 		client.SendJSON(response, slogger)
 	}
+}
+
+// initializeLogger return a zap logger according to the current environment (e.g. prod or dev)
+func initializeLogger() (*zap.Logger, error) {
+	// In prod environment
+	if os.Getenv(utils.KEY_ENVIRONMENT) == "PROD" {
+		config := zap.NewProductionEncoderConfig()
+		config.EncodeTime = zapcore.ISO8601TimeEncoder
+		fileEncoder := zapcore.NewJSONEncoder(config)
+		consoleEncoder := zapcore.NewConsoleEncoder(config)
+		logFile, err := os.OpenFile("log.json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		defaultLogLevel := zapcore.InfoLevel
+		core := zapcore.NewTee(
+			zapcore.NewCore(fileEncoder, zapcore.AddSync(logFile), defaultLogLevel),
+			zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), defaultLogLevel),
+		)
+		logger = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
+		return logger, err
+	}
+
+	// In dev/other environment
+	logger, err := zap.NewDevelopment()
+	return logger, err
 }
