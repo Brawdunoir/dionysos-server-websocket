@@ -71,7 +71,7 @@ jobs:
 
       - name: Deploy dionysos test server
         uses: appleboy/ssh-action@v0.1.4
-        if: github.ref != refs/heads/dev
+        if: ${{ github.ref == 'refs/heads/dev' }}
         with:
           host: ${{secrets.HOST}}
           port: ${{secrets.PORT}}
