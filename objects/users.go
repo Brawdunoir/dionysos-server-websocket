@@ -16,7 +16,7 @@ type Users struct {
 
 // Creates a new set of Users
 func NewUsers() *Users {
-	return &Users{members: make(map[string]*User)}
+	return &Users{members: make(map[string]*User), mu: sync.RWMutex{}}
 }
 
 // AddUser creates a new user and add it to the set of users

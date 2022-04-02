@@ -96,5 +96,5 @@ func generateRoomID(roomName, ownerPublicAddr string) string {
 
 // Creates a new room
 func NewRoom(roomName string, owner *User, isPrivate bool) *Room {
-	return &Room{ID: generateRoomID(roomName, owner.PublicIP), Name: roomName, OwnerID: owner.ID, Peers: PeersType{owner}, IsPrivate: isPrivate}
+	return &Room{ID: generateRoomID(roomName, owner.PublicIP), Name: roomName, OwnerID: owner.ID, Peers: PeersType{owner}, IsPrivate: isPrivate, mu: sync.Mutex{}}
 }

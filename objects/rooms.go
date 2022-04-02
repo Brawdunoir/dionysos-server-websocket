@@ -15,7 +15,7 @@ type Rooms struct {
 
 // Creates a new set of Rooms
 func NewRooms() *Rooms {
-	return &Rooms{saloons: make(map[string]*Room)}
+	return &Rooms{saloons: make(map[string]*Room), mu: sync.RWMutex{}}
 }
 
 // AddRoom creates a new room and add it to the set of rooms
