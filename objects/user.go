@@ -42,5 +42,5 @@ func GenerateUserID(publicAddr, uuid string) string {
 // newUser creates a new user
 func NewUser(publicAddr, uuid string, conn *websocket.Conn) *User {
 	id := GenerateUserID(publicAddr, uuid)
-	return &User{ID: id, RoomID: "", Name: id, PublicIP: publicAddr, ConnMutex: sync.Mutex{}, Conn: conn}
+	return &User{ID: id, RoomID: "", Name: "Anonymous", PublicIP: publicAddr, ConnMutex: sync.Mutex{}, Conn: conn}
 }
