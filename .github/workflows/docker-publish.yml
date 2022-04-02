@@ -1,9 +1,4 @@
-name: Docker
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
+name: Docker Build and Push Registry
 
 on:
   push:
@@ -74,9 +69,9 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-
       - name: Deploy dionysos test server
         uses: appleboy/ssh-action@v0.1.4
+        if: github.ref != refs/heads/dev
         with:
           host: ${{secrets.HOST}}
           port: ${{secrets.PORT}}
