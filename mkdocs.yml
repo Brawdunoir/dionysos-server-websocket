@@ -1,0 +1,13 @@
+site_name: Dionysos server
+site_url: https://github.com/Brawdunoir/dionysos-server
+nav:
+  - Getting started: index.md
+  - Requests:
+      - Change Username: requests/changeusername.md
+      - New Room: requests/newroom.md
+      - Join Room: requests/joinroom.md
+      - Answer Join Room Request: requests/joinroomanswer.md
+      - Quit Room: requests/quitroom.md
+      - Kick Peer: requests/kickpeer.md
+      - Send Message: requests/message.md
+theme: readthedocs
