@@ -1,7 +1,9 @@
-# What is it ? 
+[![Documentation Status](https://readthedocs.org/projects/dionysos-server/badge/?version=latest)](https://dionysos-server.readthedocs.io/en/latest/?badge=latest)
+
+# What is it ?
 dionysos-server is a server instance for the [dionysos-client](https://github.com/Brawdunoir/dionysos-client) project, enabling users to **share cinematic experiences**.
 
-# I want my own instance 
+# I want my own instance
 If you have your own server setup and you don’t want to use the default instance address to connect with your friends, feel free to host your own dionysos server instance.
 
 Note that your server and its ports need to be publicly accessible from your friends. We recommend using a reverse proxy such as traefik.
@@ -41,4 +43,4 @@ You can:
 
 
 # Just looking for the API
-If you are developing a client for dionysos and are looking for the API, head over the wiki !
+If you are developing a client for dionysos and are looking for the API, head over the [docs](dionysos-server.rtfd.io) !
