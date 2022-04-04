@@ -27,7 +27,7 @@ In case of a *private* room, asks the room owner instead and wait for its respon
 }
 ```
 
-The updated list of current users in the room is also sent. See [new peers](../responses/newpeers.md).
+The updated list of current users in the room is also sent. See [room list of peers](../responses/newpeers.md).
 
 ## Examples
 ### Public room

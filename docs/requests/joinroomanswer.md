@@ -27,7 +27,7 @@ Only needed for private rooms.
 }
 ```
 
-The updated list of current users in the room is also sent. See [new peers](../responses/newpeers.md).
+The updated list of current users in the room is also sent. See [room list of peers](../responses/newpeers.md).
 
 ## Examples
 

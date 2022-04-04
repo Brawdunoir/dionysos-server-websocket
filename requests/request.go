@@ -56,6 +56,8 @@ func (r Request) Handle(client *obj.User, users *obj.Users, rooms *obj.Rooms, lo
 		req, err = createQuitRoomRequest(r.Payload)
 	case KICK_PEER:
 		req, err = createKickPeerRequest(r.Payload)
+	case CHANGE_OWNER:
+		req, err = createChangeOwnerRequest(r.Payload)
 	default:
 		response = res.NewErrorResponse(fmt.Sprint(constants.ERR_UNKNOW_CODE, ": ", r.Code), logger)
 		return

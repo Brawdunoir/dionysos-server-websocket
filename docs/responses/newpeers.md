@@ -1,4 +1,4 @@
-# List of peers
+# Room List of Peers
 ## Description
 A changement about the peers has occured in your room.
 

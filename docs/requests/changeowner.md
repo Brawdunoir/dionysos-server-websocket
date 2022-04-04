@@ -1,16 +1,16 @@
-# Kick Peer
-
+# Transfer Room Ownership
 ## Description
-Kick a user from your room.
+Change the room owner.
 
 *Note: only the room owner can make this request.*
+
 ## Request
 
 ```json
 {
-	"code": "KPE",
+	"code": "COW",
 	"payload": {
-		"peerId": "<userID>",
+		"newOwnerId": "<userID>"
 	}
 }
 ```
@@ -19,26 +19,27 @@ Kick a user from your room.
 
 ```json
 {
-	"code": "KPE",
+	"code": "COW",
 	"payload": null
 }
 ```
 
 The updated list of current users in the room is also sent. See [room list of peers](../responses/newpeers.md).
 
+
 ## Examples
 
 ```json
-// Client request to kick a user
+// Room owner request to transfer ownership
 {
-	"code": "KPE",
+	"code": "COW",
 	"payload": {
-		"peerId": "c6e39aa0963901a6b347233880b44133647ecd65",
+		"newOwnerId": "c6e39aa0963901a6b347233880b44133647ecd65"
 	}
 }
 // Server response
 {
-	"code": "KPE",
+	"code": "COW",
 	"payload": null
 }
 // Updated list of users in room
