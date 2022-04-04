@@ -44,3 +44,26 @@ go run .
 ```
 
 Then you should connect to `ws://localhost:8080`.
+
+## Connection client/server
+
+The communication client/server is *websocket-based* because the server needs to send spontaneous answers, for example for chat.
+
+Right after dialing the websocket, the server expects a client-generated UUID in order to generate an ID for the connection (i.e. the user). This ID will be sent back as a response right away. See [connection](../responses/connection.md) response.
+
+The handshake schema:
+
+```json
+// client -> server
+4765f008-b458-11ec-b909-0242ac120002
+
+// server -> client
+{
+	"code": "COS",
+	"payload": {
+		"userId": "3b4284cb9f94aeb5bf920f82bd2e6d84dfb86632",
+	}
+}
+
+// client can now start to send requests to the server
+```

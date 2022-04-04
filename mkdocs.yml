@@ -11,6 +11,7 @@ nav:
       - requests/kickpeer.md
       - requests/message.md
   - Responses:
+      - responses/connection.md
       - responses/newpeers.md
       - responses/joinroompending.md
 theme: material
