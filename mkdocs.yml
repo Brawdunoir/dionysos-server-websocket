@@ -6,10 +6,11 @@ nav:
       - requests/changeusername.md
       - requests/newroom.md
       - requests/joinroom.md
-      - Answer Join Room Request: requests/joinroomanswer.md
-      - Quit Room: requests/quitroom.md
-      - Kick Peer: requests/kickpeer.md
-      - Send Message: requests/message.md
+      - requests/joinroomanswer.md
+      - requests/quitroom.md
+      - requests/kickpeer.md
+      - requests/message.md
   - Responses:
       - responses/newpeers.md
+      - responses/joinroompending.md
 theme: material

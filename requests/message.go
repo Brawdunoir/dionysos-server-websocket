@@ -25,7 +25,7 @@ func (r NewMessageRequest) Handle(client *obj.User, users *obj.Users, rooms *obj
 	}
 
 	// Send the message to all peers in the room
-	mes := obj.NewMessage(client.ID, client.Name, r.Content)
+	mes := res.NewResponse(res.NewMessageResponse{SenderID: client.ID, SenderName: client.Name, Content: r.Content}, logger)
 	room.SendJSONToPeers(mes, logger)
 
 	logger.Infow("new message request success", "user", client.ID, "username", client.Name, "room", room.ID, "roomname", room.Name)

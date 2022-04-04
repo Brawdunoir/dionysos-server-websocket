@@ -18,8 +18,8 @@ const (
 	DENIED = "DEN"
 	// Signal that a new peer joined the room
 	NEW_PEER = "NEP"
-	// Signal that a new message has been sent
-	NEW_MESSAGE = "NMS"
+	// Signal that a new message has been sent with the content
+	NEW_MESSAGE = "NME"
 	// Signal that the username has been changed internally
 	CHANGE_USERNAME = "CHU"
 )
