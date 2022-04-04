@@ -32,7 +32,7 @@ The room ID will be mandatory for other users to join this room.
 ### Success
 
 ```json
-// Client request
+// Client request to create a new room
 {
 	"code": "NRO",
 	"payload": {
@@ -51,7 +51,7 @@ The room ID will be mandatory for other users to join this room.
 ```
 ### Failure
 ```json
-// Client request
+// Client request to create a new room
 {
 	"code": "NRO",
 	"payload": {

@@ -1,6 +1,6 @@
 # Join Room
 ## Description
-In case of a *public* room, directly join the room.  
+In case of a *public* room, directly join the room.
 In case of a *private* room, asks the room owner instead and wait for its response.
 
 ## Request
@@ -27,7 +27,7 @@ In case of a *private* room, asks the room owner instead and wait for its respon
 }
 ```
 
-The list of current users in the room is also sent. See [new peers](../responses/newpeers.md).
+The updated list of current users in the room is also sent. See [new peers](../responses/newpeers.md).
 
 ## Examples
 ### Public room
@@ -49,7 +49,7 @@ The list of current users in the room is also sent. See [new peers](../responses
 		"isPrivate": false
 	}
 }
-// List of users in room
+// Updated list of users in room
 {
 	…
 }
@@ -81,6 +81,7 @@ If the owner *accepts*:
 ```json
 // Server message after room's owner approval
 // List of users in room
+// Updated list of users in room
 {
 	…
 }
