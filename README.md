@@ -14,7 +14,8 @@ The preferred method is to run the default dionysos docker image.
 docker run -p 8080:8080 -e DIONYSOS_ENVIRONMENT="PROD" -v /path/to/logs:/logs brawdunoir/dionysos-server:master
 ```
 
-This command will pull the `brawdunoir/dionysos-server:master` image from Docker Hub and:
+This command will:
+- Pull the `brawdunoir/dionysos-server:master` image from Docker Hub
 - Forward port 8080 from the docker container to the host
 - Set to "PROD" the environment
 - Write logs to the `/path/to/logs` folder
@@ -43,4 +44,4 @@ You can:
 
 
 # Just looking for the API
-If you are developing a client for dionysos and are looking for the API, head over the [docs](dionysos-server.rtfd.io) !
+If you are developing a client for dionysos and are looking for the API, head over the [docs](https://dionysos-server.readthedocs.io/en/latest/) !
