@@ -9,9 +9,10 @@ nav:
       - requests/joinroomanswer.md
       - requests/quitroom.md
       - requests/kickpeer.md
+      - requests/changeowner.md
       - requests/message.md
   - Responses:
       - responses/connection.md
       - responses/newpeers.md
       - responses/joinroompending.md
-theme: material
+theme: readthedocs
