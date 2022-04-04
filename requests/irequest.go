@@ -22,6 +22,8 @@ const (
 	NEW_MESSAGE = "NME"
 	// Change the username
 	CHANGE_USERNAME = "CHU"
+	// Change owner of room
+	CHANGE_OWNER = "COW"
 	// Quit a room
 	QUIT_ROOM = "QRO"
 	// Ask to kick a peer
