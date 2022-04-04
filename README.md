@@ -1,4 +1,4 @@
-[![Documentation Status](https://readthedocs.org/projects/dionysos-server/badge/?version=latest)](https://dionysos-server.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/dionysos-server/badge/?version=latest)](https://dionysos-server.readthedocs.io/en/latest/)
 
 # What is it ?
 dionysos-server is a server instance for the [dionysos-client](https://github.com/Brawdunoir/dionysos-client) project, enabling users to **share cinematic experiences**.
