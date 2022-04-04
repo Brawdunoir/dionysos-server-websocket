@@ -44,10 +44,18 @@ func (r *Room) AddPeer(u *User, logger *zap.SugaredLogger) error {
 }
 
 // SetOwnerID safely changes ownerID to room
-func (r *Room) SetOwnerID(newOwnerID string) {
+func (r *Room) SetOwnerID(newOwner *User, logger *zap.SugaredLogger) error {
+	// Assert the new owner is part of the room
+	if r.ID != newOwner.RoomID {
+		logger.Errorw("request to transfer room ownership to an unknown peer", "room", r.ID, "roomname", r.Name, "unknowpeer", newOwner.ID)
+		return errors.New(constants.ERR_USER_NOT_IN_ROOM)
+	}
+
 	r.mu.Lock()
-	r.OwnerID = newOwnerID
+	r.OwnerID = newOwner.ID
 	r.mu.Unlock()
+
+	return nil
 }
 
 // RemovePeer safely removes a peer from a room and sets roomID for the user
@@ -61,7 +69,7 @@ func (r *Room) RemovePeer(u *User, logger *zap.SugaredLogger) error {
 			logger.Debugw("remove peer from room", "user", u.ID, "username", u.Name, "room", r.ID, "roomname", r.Name)
 			if u.ID == r.OwnerID && len(r.Peers) > 0 {
 				newOwner := r.Peers[0]
-				r.SetOwnerID(newOwner.ID)
+				r.SetOwnerID(newOwner, logger)
 				logger.Debugw("change owner of room", "oldOwner", u.ID, "oldOwnername", u.Name, "newOwner", newOwner.ID, "newOwnername", newOwner.Name, "room", r.ID, "roomname", r.Name)
 			}
 			return nil
