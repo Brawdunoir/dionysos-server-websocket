@@ -1,7 +1,7 @@
 # Join Room
 ## Description
-In case of a *public* room, directly join the room.
-In case of a *private* room, asks the room owner instead and wait for its response.
+In the case of a *public* room, directly joins the room.
+In the case of a *private* room, asks the room owner instead and waits for his response.
 
 ## Request
 
@@ -74,14 +74,14 @@ The updated list of current users in the room is also sent. See [room list of pe
 		"isPrivate": true
 	}
 }
-// ... Wait room's owner response
+// ... Wait for the room's owner response
 ```
 
 If the owner *accepts*:
 ```json
 // Server message after room's owner approval
-// List of users in room
-// Updated list of users in room
+// List of users in the room
+// Updated list of users in the room
 {
 	…
 }

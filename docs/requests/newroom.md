@@ -1,4 +1,4 @@
-# New Room
+# Create Room
 ## Description
 Create a new room.
 

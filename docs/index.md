@@ -29,23 +29,23 @@ You can either develop in full local (more control) or use the public test serve
 Simply connect with a websocket to `wss://dionysos-test.yannlacroix.fr` and start your journey.
 
 ### Local
-Either use docker or compile server from source using Go.
+Either use docker or compile the server from source using Go.
 
 Using docker:
 ```s
 docker run -p 8080:8080 dionysos-server:master
 ```
 
-Compile from source:
+Compiling from source:
 ```s
 git clone https://github.com/Brawdunoir/dionysos-server.git
 cd dionysos-server
 go run .
 ```
 
-Then you should connect to `ws://localhost:8080`.
+You should now be able to connect via the following url: `ws://localhost:8080`.
 
-## Connection client/server
+## Client/server connection
 
 The communication client/server is *websocket-based* because the server needs to send spontaneous answers, for example for chat.
 

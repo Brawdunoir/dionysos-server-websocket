@@ -3,7 +3,7 @@
 ## Description
 A request to join your room needs your attention.
 
-*Note: it is a response from the server because of an another user request.*
+*Note: it is a response from the server caused by another user's request.*
 
 ## Response
 
