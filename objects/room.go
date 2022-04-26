@@ -13,12 +13,13 @@ type PeersType []*User
 
 // room represents data about a room for peers.
 type Room struct {
-	ID        string     `json:"id"`
-	Name      string     `json:"name"`
-	OwnerID   string     `json:"ownerid"`
-	Peers     PeersType  `json:"peers"`
-	IsPrivate bool       `json:"isPrivate"`
-	mu        sync.Mutex `json:"-"`
+	ID           string       `json:"id"`
+	Name         string       `json:"name"`
+	OwnerID      string       `json:"ownerid"`
+	Peers        PeersType    `json:"peers"`
+	IsPrivate    bool         `json:"isPrivate"`
+	FileMetadata FileMetadata `json:"fileMetadata"`
+	mu           sync.Mutex   `json:"-"`
 }
 
 func (r *Room) String() string {
@@ -95,6 +96,12 @@ func (r *Room) SendJSONToPeers(json interface{}, logger *zap.SugaredLogger) {
 		peer.SendJSON(json, logger)
 		logger.Debugw("peer has been notified of a message", "peer", peer.ID, "peername", peer.Name, "room", r.ID, "roomname", r.Name, "message", json)
 	}
+}
+
+func (r *Room) setFileMetadata(fileMetadata FileMetadata) {
+	r.mu.Lock()
+	r.FileMetadata = fileMetadata
+	r.mu.Unlock()
 }
 
 // Generate a room ID based on a roomname and an ownerPublicAddr

@@ -28,6 +28,8 @@ const (
 	QUIT_ROOM = "QRO"
 	// Ask to kick a peer
 	KICK_PEER = "KPE"
+	// Ask to load a file in the room
+	LOAD_FILE = "LFI"
 )
 
 type IRequest interface {
