@@ -1,8 +1,8 @@
 # Room List of Peers
 ## Description
-A changement about the peers has occured in your room.
+A change in the peers has occured in your room.
 
-*Note: This can anything, from a peer rename to a kick passing to a new peer joining your room.*
+*Note: This can be anything from a peer rename to a kick or a new peer joining your room.*
 
 ## Response
 
