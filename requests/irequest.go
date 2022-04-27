@@ -30,6 +30,8 @@ const (
 	KICK_PEER = "KPE"
 	// Ask to load a file in the room
 	LOAD_FILE = "LFI"
+	// Upload file chunk. It is only forwarded to peers and not keeped in the server
+	UPLOAD_CHUNK = "UCH"
 )
 
 type IRequest interface {

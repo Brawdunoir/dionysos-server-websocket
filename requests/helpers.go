@@ -1,6 +1,7 @@
 package requests
 
 import (
+	"encoding/binary"
 	"errors"
 
 	"github.com/Brawdunoir/dionysos-server/constants"
@@ -100,6 +101,26 @@ func notifyPeers(rooms *obj.Rooms, room *obj.Room, logger *zap.SugaredLogger) er
 	room.SendJSONToPeers(mes, logger)
 
 	logger.Infow("notify peers", "room", room.ID, "roomname", room.Name)
+
+	return nil
+}
+
+// Validates a chunk metadata.
+// A regular chunk should be the exact same size as the constant CHUNK_SIZE.
+// The last chunk of the file should have a size inferior then the constant CHUNK_SIZE.
+func validateChunkData(metadata obj.FileMetadata, request UploadChunkRequest) error {
+	err := errors.New("wrong chunkdata size")
+	chunkSize := binary.Size(request.ChunkData)
+
+	if metadata.Chunks == request.ChunkNumber {
+		if chunkSize > int(metadata.ChunkSize) {
+			return err
+		}
+	} else {
+		if chunkSize != int(metadata.ChunkSize) {
+			return err
+		}
+	}
 
 	return nil
 }
