@@ -12,9 +12,11 @@ nav:
           - requests/changeowner.md
           - requests/message.md
           - requests/loadfile.md
+          - requests/uploadchunk.md
     - Responses:
           - responses/connection.md
           - responses/newpeers.md
           - responses/joinroompending.md
           - responses/loadfile.md
+          - responses/uploadchunk.md
 theme: readthedocs
