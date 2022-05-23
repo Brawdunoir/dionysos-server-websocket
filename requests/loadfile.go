@@ -14,7 +14,6 @@ import (
 type LoadFileRequest struct {
 	Name string `json:"name" validate:"min=3,max=254"` // Name of file
 	Size uint64 `json:"size" validate:"min=1"`         // Size of file, in bytes
-
 }
 
 // Handle a file metadata upload. Happens just before the room's owner starts to upload file
