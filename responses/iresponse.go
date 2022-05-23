@@ -22,6 +22,10 @@ const (
 	NEW_MESSAGE = "NME"
 	// Signal that the username has been changed internally
 	CHANGE_USERNAME = "CHU"
+	// Signal that a new file has been loaded (and that fragments will be sent)
+	LOAD_FILE = "LFI"
+	// Upload file chunk. It is only forwarded to peers and not keeped in the server
+	UPLOAD_CHUNK = "UCH"
 )
 
 type IResponse interface {

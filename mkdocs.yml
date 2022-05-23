@@ -1,18 +1,22 @@
 site_name: Dionysos server
 site_url: https://github.com/Brawdunoir/dionysos-server
 nav:
-  - Getting started: index.md
-  - Requests:
-      - requests/changeusername.md
-      - requests/newroom.md
-      - requests/joinroom.md
-      - requests/joinroomanswer.md
-      - requests/quitroom.md
-      - requests/kickpeer.md
-      - requests/changeowner.md
-      - requests/message.md
-  - Responses:
-      - responses/connection.md
-      - responses/newpeers.md
-      - responses/joinroompending.md
+    - Getting started: index.md
+    - Requests:
+          - requests/changeusername.md
+          - requests/newroom.md
+          - requests/joinroom.md
+          - requests/joinroomanswer.md
+          - requests/quitroom.md
+          - requests/kickpeer.md
+          - requests/changeowner.md
+          - requests/message.md
+          - requests/loadfile.md
+          - requests/uploadchunk.md
+    - Responses:
+          - responses/connection.md
+          - responses/newpeers.md
+          - responses/joinroompending.md
+          - responses/loadfile.md
+          - responses/uploadchunk.md
 theme: readthedocs

@@ -18,7 +18,7 @@ const (
 	JOIN_ROOM = "JRO"
 	// Follow a JOIN_ROOM request. Grant or deny user access to the room, return nothing.
 	JOIN_ROOM_ANSWER = "JRA"
-	// Forward the message to all peers within the room. The messages are not keeped in the rooms.
+	// Forward the message to all peers within the room. The messages are not kept in the rooms.
 	NEW_MESSAGE = "NME"
 	// Change the username
 	CHANGE_USERNAME = "CHU"
@@ -28,6 +28,10 @@ const (
 	QUIT_ROOM = "QRO"
 	// Ask to kick a peer
 	KICK_PEER = "KPE"
+	// Ask to load a file in the room
+	LOAD_FILE = "LFI"
+	// Upload file chunk. It is only forwarded to peers and not keeped in the server
+	UPLOAD_CHUNK = "UCH"
 )
 
 type IRequest interface {

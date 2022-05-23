@@ -58,6 +58,10 @@ func (r Request) Handle(client *obj.User, users *obj.Users, rooms *obj.Rooms, lo
 		req, err = createKickPeerRequest(r.Payload)
 	case CHANGE_OWNER:
 		req, err = createChangeOwnerRequest(r.Payload)
+	case LOAD_FILE:
+		req, err = createLoadFileRequest(r.Payload)
+	case UPLOAD_CHUNK:
+		req, err = createUploadChunkRequest(r.Payload)
 	default:
 		response = res.NewErrorResponse(fmt.Sprint(constants.ERR_UNKNOW_CODE, ": ", r.Code), logger)
 		return
