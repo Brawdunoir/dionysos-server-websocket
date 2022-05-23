@@ -2,7 +2,7 @@
 
 ## Description
 Send file metadata to the room.
-This request aims to advertise room peers to know file size and other information related for the further transfer.
+This request aims to notify room peers about the file size and other information related for the further transfer.
 
 *Note: only the room owner can make this request.*
 
